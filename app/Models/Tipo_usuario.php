@@ -11,7 +11,7 @@ class Tipo_usuario extends Model
 
     protected $table = 'tipo_usuario';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['tipo'];
 }

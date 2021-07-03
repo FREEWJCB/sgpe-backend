@@ -11,5 +11,7 @@ class Persona extends Model
 
     protected $table = 'persona';
 
+    protected $guarded = ['id'];
 
+    // protected $fillable = ['cedula', 'nombre', 'apellido', 'sex', 'telefono', 'direccion', 'municipality'];
 }

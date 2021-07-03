@@ -11,7 +11,7 @@ class Ocupacion_laboral extends Model
 
     protected $table = 'ocupacion_laboral';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['labor'];
 }

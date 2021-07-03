@@ -11,7 +11,7 @@ class Alergia extends Model
 
     protected $table = 'alergia';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['alergias', 'descripcion', 'tipo'];
 }

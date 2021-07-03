@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Store\storeCargo;
+use App\Http\Requests\Update\updateCargo;
+use App\Models\Cargo;
+// use Illuminate\Support\Facades\DB;
 
 class CargoController extends Controller
 {
@@ -12,10 +15,10 @@ class CargoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($js="AJAX")
+    public function index()
     {
         //
-        $cons = DB::table('cargo')->where('status', '1')->orderBy('cargos','asc');
+        $cons = Cargo::where('status', '1')->orderBy('cargos','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
         return view('view.cargo',['cons' => $cons2, 'num' => $num, 'js' => $js]);
@@ -27,10 +30,18 @@ class CargoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeCargo $request)
     {
         //
-        DB::table('cargo')->insert(['cargos' => $request->cargos]);
+        $cargo = Cargo::where('cargos', $request->cargos);
+        $num = $cargo->count();
+        if ($num > 0) {
+            # code...
+            $cargo->update(['status' => 1]);
+        }else{
+            Cargo::create($request->all());
+        }
+
     }
 
     /**
@@ -40,10 +51,29 @@ class CargoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateCargo $request, Cargo $Cargo)
     {
         //
-        DB::table('cargo')->where('id', $request->id)->update(['cargos' => $request->cargos]);
+        $cargo = Cargo::where([['cargos', $request->cargos],['status', 0]]);
+        $num = $cargo->count();
+        $id=0;
+        if ($num > 0) {
+            $cargo1 = $cargo->get();
+            foreach ($cargo1 as $cargo2) {
+                # code...
+                $id = $cargo2->id;
+            }
+            $cargo->update(['status' => 1]);
+            $Cargo->update(['status' => 0]);
+        }else{
+            $Cargo->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
+
     }
 
     /**
@@ -52,20 +82,22 @@ class CargoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Cargo $Cargo)
     {
         //
-        DB::table('cargo')->where('id', $id)->delete();
+        // DB::table('cargo')->where('id', $Cargo->id)->update(['status' => 0]);
+        $Cargo->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
     {
         $cat="";
         $cargos=$request->bs_cargos;
-        $cons= DB::table('cargo')
-                 ->where('cargos','like', "%$cargos%")
-                 ->where('status', '1')
-                 ->orderBy('cargos','asc');
+        $cons = Cargo::where([
+            ['status', '1'],
+            ['cargos','like', "%$cargos%"]
+            ])->orderBy('cargos','asc');
+
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -107,17 +139,10 @@ class CargoController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('cargo')
-                 ->where('id', $id)->get();
+        $cargo = Cargo::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $cargos=$cons2->cargos;
-
-        }
         return response()->json([
-            'cargos'=>$cargos
+            'cargos'=>$cargo->cargos
         ]);
 
 

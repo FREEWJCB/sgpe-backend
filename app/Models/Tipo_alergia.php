@@ -11,7 +11,7 @@ class Tipo_alergia extends Model
 
     protected $table = 'tipo_alergia';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['tipo'];
 }

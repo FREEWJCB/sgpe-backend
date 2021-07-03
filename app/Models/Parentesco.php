@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Modelo extends Model
+class Parentesco extends Model
 {
     use HasFactory;
 
-    protected $table = 'modelos';
+    protected $table = 'parentesco';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
-    // protected $fillable = ['modelo', 'marca'];
+    // protected $fillable = ['cargos'];
 }

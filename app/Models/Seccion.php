@@ -11,7 +11,7 @@ class Seccion extends Model
 
     protected $table = 'seccion';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['secciones'];
 }

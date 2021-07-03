@@ -11,7 +11,7 @@ class Tipo_discapacidad extends Model
 
     protected $table = 'tipo_discapacidad';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['tipo'];
 }

@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeUsuario;
+use App\Http\Requests\Update\updateUsuario;
+use App\Models\Empleado;
+use App\Models\Tipo_usuario;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class UsuarioController extends Controller
@@ -13,18 +18,16 @@ class UsuarioController extends Controller
      */
     public function index($js="AJAX")
     {
-        //
-        $cons = DB::table('usuario')
-                    ->select('usuario.*','empleado.*','persona.*','tipo_usuario.tipo as tip')
-                    ->join('tipo_usuario', 'usuario.tipo', '=', 'tipo_usuario.id')
-                    ->join('empleado', 'usuario.empleado', '=', 'empleado.id')
-                    ->join('persona', 'empleado.persona', '=', 'persona.id')
-                    ->where('usuario.status', '1')
-                    ->orderBy('username','asc');
+
+        $cons = Usuario::select('usuario.*','empleado.*','persona.*','tipo_usuario.tipo as tip')
+        ->join('tipo_usuario', 'usuario.tipo', '=', 'tipo_usuario.id')
+        ->join('empleado', 'usuario.empleado', '=', 'empleado.id')
+        ->join('persona', 'empleado.persona', '=', 'persona.id')
+        ->where('usuario.status', '1')->orderBy('username','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
 
-        $tipo = DB::table('tipo_usuario')->where('status', '1')->orderBy('tipo','asc');
+        $tipo = Tipo_usuario::where('status', '1')->orderBy('tipo','asc');
         $tipo2 = $tipo->get();
         $num_tipo = $tipo->count();
 
@@ -37,28 +40,26 @@ class UsuarioController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeUsuario $request)
     {
         //
-        DB::table('usuario')->insert([
-            'username' => $request->username,
-            'pregunta' => $request->pregunta,
-            'respuesta' => md5($request->respuesta),
-            'tipo' => $request->tipo,
-            'empleado' => $request->empleado
-            ]);
-
-        $cons = DB::table('usuario')->where('username', $request->username)->get();
-
-        foreach ($cons as $cons2) {
+        if ($request['password'] == $request['password2']) {
             # code...
-            $usuario=$cons2->id;
+            $usuario = Usuario::create($request->all());
+
+            DB::table('password')->insert([
+                'passw' => md5($request->password),
+                'usuario' => $usuario->id
+            ]);
+        }else{
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Las contraseñas no coinciden',
+                'limpiar' => false,
+                'alerta' => "<script> $('#password2').val(''); $('#password2').attr('class', 'form-control border border-danger'); $('#password2_e').html('La contraseña no coinciden.'); </script>"
+            ]);
         }
 
-        DB::table('password')->insert([
-            'passw' => md5($request->password),
-            'usuario' => $usuario
-            ]);
     }
 
     /**
@@ -68,12 +69,10 @@ class UsuarioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateUsuario $request, Usuario $Usuario)
     {
         //
-        DB::table('usuario')->where('id', $request->id)->update([
-            'tipo' => $request->tipo
-            ]);
+        $Usuario->update(['tipo' => $request->tipo]);
     }
 
     /**
@@ -82,11 +81,18 @@ class UsuarioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Usuario $Usuario)
     {
         //
-        DB::table('password')->where('usuario', $id)->update(['status' => 0]);
-        DB::table('usuario')->where('id', $id)->update(['status' => 0]);
+        DB::table('password')->where('usuario', $Usuario->id)->update(['status' => 0]);
+        $Usuario->update(['status' => 0]);
+    }
+
+    public function active(Usuario $Usuario)
+    {
+        //
+        DB::table('password')->where('usuario', $Usuario->id)->update(['status' => 0]);
+        $Usuario->update(['status' => 1]);
     }
 
     public function cargar(Request $request)
@@ -97,19 +103,19 @@ class UsuarioController extends Controller
         $apellido=$request->bs_apellido;
         $tipo=$request->bs_tipo;
         $username=$request->bs_username;
-        $cons = DB::table('usuario')
-                    ->select('usuario.*','empleado.*','persona.*','tipo_usuario.tipo as tip')
-                    ->join('tipo_usuario', 'usuario.tipo', '=', 'tipo_usuario.id')
-                    ->join('empleado', 'usuario.empleado', '=', 'empleado.id')
-                    ->join('persona', 'empleado.persona', '=', 'persona.id')
-                    ->where('usuario.status', '1')
-                    ->where('cedula','like', "%$cedula%")
-                    ->where('nombre','like', "%$nombre%")
-                    ->where('apellido','like', "%$apellido%")
-                    ->where('tipo_usuario.tipo','like', "%$tipo%")
-                    ->where('username','like', "%$username%")
-                    ->orderBy('username','asc');
-
+        $cons = Usuario::select('usuario.*','empleado.*','persona.*','tipo_usuario.tipo as tip')
+                    ->join([
+                        ['tipo_usuario', 'usuario.tipo', '=', 'tipo_usuario.id'],
+                        ['empleado', 'usuario.empleado', '=', 'empleado.id'],
+                        ['persona', 'empleado.persona', '=', 'persona.id']
+                    ])->where([
+                        ['usuario.status', '1'],
+                        ['cedula','like', "%$cedula%"],
+                        ['nombre','like', "%$nombre%"],
+                        ['apellido','like', "%$apellido%"],
+                        ['tipo_usuario.tipo','like', "%$tipo%"],
+                        ['username','like', "%$username%"]
+                    ])->orderBy('username','asc');
 
         $cons1 = $cons->get();
         $num = $cons->count();
@@ -158,31 +164,21 @@ class UsuarioController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('usuario')
-                ->join('empleado', 'usuario.empleado', '=', 'empleado.id')
-                ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
-                ->join('persona', 'empleado.persona', '=', 'persona.id')
-                ->where('usuario.id', $id)->get();
-        foreach ($cons as $cons2) {
-            # code...
-            $cedula=$cons2->cedula;
-            $nombre="$cons2->nombre $cons2->apellido";
-            $cargo=$cons2->cargos;
-            $tipo=$cons2->tipo;
-            $username=$cons2->username;
-            $pregunta=$cons2->pregunta;
-            $empleado=$cons2->empleado;
+        $usuario= Usuario::find($request->id)
+                ->join([
+                    ['empleado', 'usuario.empleado', '=', 'empleado.id'],
+                    ['cargo', 'empleado.cargo', '=', 'cargo.id'],
+                    ['persona', 'empleado.persona', '=', 'persona.id']
+                ]);
 
-        }
         return response()->json([
-            'cedula'=>$cedula,
-            'nombre'=>$nombre,
-            'cargo'=>$cargo,
-            'tipo'=>$tipo,
-            'username'=>$username,
-            'pregunta'=>$pregunta,
-            'empleado'=>$empleado
+            'cedula'=>$usuario->cedula,
+            'nombre'=>$usuario->nombre,
+            'cargo'=>$usuario->cargo,
+            'tipo'=>$usuario->tipo,
+            'username'=>$usuario->username,
+            'pregunta'=>$usuario->pregunta,
+            'empleado'=>$usuario->empleado
         ]);
 
 
@@ -195,11 +191,11 @@ class UsuarioController extends Controller
         $empleado="";
         $nombre="";
         $cargo="";
-        $cons= DB::table('empleado')
-                ->select('empleado.*', 'cargo.cargos', 'persona.cedula', 'persona.nombre', 'persona.apellido')
-                ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
-                ->join('persona', 'empleado.persona', '=', 'persona.id')
-                ->where('cedula', $cedula);
+        $cons= Empleado::select('empleado.*', 'cargo.cargos', 'persona.cedula', 'persona.nombre', 'persona.apellido')
+                ->join([
+                    ['cargo', 'empleado.cargo', '=', 'cargo.id'],
+                    ['persona', 'empleado.persona', '=', 'persona.id']
+                ])->where('cedula', $cedula);
 
         $cons1 = $cons->get();
         $num = $cons->count();

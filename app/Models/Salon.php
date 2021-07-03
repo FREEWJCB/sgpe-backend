@@ -11,7 +11,7 @@ class Salon extends Model
 
     protected $table = 'salon';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['salones'];
 }

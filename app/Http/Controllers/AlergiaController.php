@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeAlergia;
+use App\Http\Requests\Update\updateAlergia;
+use App\Models\Alergia;
+use App\Models\Tipo_alergia;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 class AlergiaController extends Controller
 {
     /**
@@ -14,15 +17,14 @@ class AlergiaController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('alergia')
-                    ->select('alergia.*', 'tipo_alergia.tipo as tip')
-                    ->join('tipo_alergia', 'alergia.tipo', '=', 'tipo_alergia.id')
-                    ->where('alergia.status', '1')
-                    ->orderBy('alergias','asc');
+        $cons = Alergia::select('alergia.*', 'tipo_alergia.tipo as tip')
+                ->join('tipo_alergia', 'alergia.tipo', '=', 'tipo_alergia.id')
+                ->where('alergia.status', '1')
+                ->orderBy('alergias','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
 
-        $tipo_alergia = DB::table('tipo_alergia')->where('status', '1')->orderBy('tipo','asc');
+        $tipo_alergia = Tipo_alergia::where('status', '1')->orderBy('tipo','asc');
         $tipo_alergia2 = $tipo_alergia->get();
         $num_tipo = $tipo_alergia->count();
 
@@ -35,14 +37,18 @@ class AlergiaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeAlergia $request)
     {
         //
-        DB::table('alergia')->insert([
-            'tipo' => $request->tipo,
-            'alergias' => $request->alergias,
-            'descripcion' => $request->descripcion
-            ]);
+        $alergia = Alergia::where('alergias', $request->alergias);
+        $num = $alergia->count();
+        if ($num > 0) {
+            # code...
+            $alergia->update(['status' => 1]);
+        }else{
+            Alergia::create($request->all());
+        }
+
     }
 
     /**
@@ -52,14 +58,29 @@ class AlergiaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateAlergia $request, Alergia $Alergium)
     {
         //
-        DB::table('alergia')->where('id', $request->id)->update([
-            'tipo' => $request->tipo,
-            'alergias' => $request->alergias,
-            'descripcion' => $request->descripcion
-            ]);
+        $alergia = Alergia::where([['alergias', $request->alergias],['status', 0]]);
+        $num = $alergia->count();
+        $id=0;
+        if ($num > 0) {
+            $alergia1 = $alergia->get();
+            foreach ($alergia1 as $alergia2) {
+                # code...
+                $id = $alergia2->id;
+            }
+            $alergia->update(['status' => 1]);
+            $Alergium->update(['status' => 0]);
+        }else{
+            $Alergium->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
+
     }
 
     /**
@@ -68,10 +89,10 @@ class AlergiaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Alergia $Alergium)
     {
         //
-        DB::table('alergia')->where('id', $id)->delete();
+        $Alergium->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
@@ -79,13 +100,15 @@ class AlergiaController extends Controller
         $cat="";
         $tipo=$request->bs_tipo;
         $alergias=$request->bs_alergias;
-        $cons = DB::table('alergia')
-                ->select('alergia.*', 'tipo_alergia.tipo as tip')
+        $cons = Alergia::select('alergia.*', 'tipo_alergia.tipo as tip')
                 ->join('tipo_alergia', 'alergia.tipo', '=', 'tipo_alergia.id')
-                ->where('alergia.tipo', 'like', "%$tipo%")
-                ->where('alergias','like', "%$alergias%")
-                ->where('alergia.status', '1')
+                ->where([
+                    ['alergia.status', '1'],
+                    ['alergia.tipo', 'like', "%$tipo%"],
+                    ['alergias','like', "%$alergias%"]
+                    ])
                 ->orderBy('alergias','asc');
+
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -129,21 +152,12 @@ class AlergiaController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('alergia')
-                 ->where('id', $id)->get();
+        $alergia = Alergia::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $tipo=$cons2->tipo;
-            $alergias=$cons2->alergias;
-            $descripcion=$cons2->descripcion;
-
-        }
         return response()->json([
-            'tipo'=>$tipo,
-            'alergias'=>$alergias,
-            'descripcion'=>$descripcion
+            'tipo'=>$alergia->tipo,
+            'alergias'=>$alergia->alergias,
+            'descripcion'=>$alergia->descripcion
         ]);
 
 

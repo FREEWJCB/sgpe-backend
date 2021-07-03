@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeState;
+use App\Http\Requests\Update\updateState;
+use App\Models\State;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +18,7 @@ class StateController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('state')->where('status', '1')->orderBy('states','asc');
+        $cons = State::where('status', '1')->orderBy('states','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
         return view('view.state',['cons' => $cons2, 'num' => $num, 'js' => $js]);
@@ -27,10 +30,17 @@ class StateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeState $request)
     {
         //
-        DB::table('state')->insert(['states' => $request->states]);
+        $state = State::where('states', $request->states);
+        $num = $state->count();
+        if ($num > 0) {
+            # code...
+            $state->update(['status' => 1]);
+        }else{
+            State::create($request->all());
+        }
     }
 
     /**
@@ -40,10 +50,28 @@ class StateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateState $request, State $State)
     {
         //
-        DB::table('state')->where('id', $request->id)->update(['states' => $request->states]);
+        $state = State::where([['states', $request->states],['status', 0]]);
+        $num = $state->count();
+        $id=0;
+        if ($num > 0) {
+            $state1 = $state->get();
+            foreach ($state1 as $state2) {
+                # code...
+                $id = $state2->id;
+            }
+            $state->update(['status' => 1]);
+            $State->update(['status' => 0]);
+        }else{
+            $State->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
     }
 
     /**
@@ -52,20 +80,20 @@ class StateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(State $State)
     {
         //
-        DB::table('state')->where('id', $id)->delete();
+        $State->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
     {
         $cat="";
         $states=$request->bs_states;
-        $cons= DB::table('state')
-                 ->where('states','like', "%$states%")
-                 ->where('status', '1')
-                 ->orderBy('states','asc');
+        $cons = State::where([
+            ['status', '1'],
+            ['states','like', "%$states%"]
+        ])->orderBy('states','asc');
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -107,17 +135,10 @@ class StateController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('state')
-                 ->where('id', $id)->get();
+        $state= State::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $states=$cons2->states;
-
-        }
         return response()->json([
-            'states'=>$states
+            'states'=>$state->states
         ]);
 
 

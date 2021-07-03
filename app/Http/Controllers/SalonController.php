@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeSalon;
+use App\Http\Requests\Update\updateSalon;
+use App\Models\Salon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SalonController extends Controller
 {
@@ -15,7 +17,7 @@ class SalonController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('salon')->where('status', '1')->orderBy('salones','asc');
+        $cons = Salon::where('status', '1')->orderBy('salones','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
         return view('view.salon',['cons' => $cons2, 'num' => $num, 'js' => $js]);
@@ -27,10 +29,18 @@ class SalonController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeSalon $request)
     {
         //
-        DB::table('salon')->insert(['salones' => $request->salones]);
+        $salon = Salon::where('salones', $request->salones);
+        $num = $salon->count();
+        if ($num > 0) {
+            # code...
+            $salon->update(['status' => 1]);
+        }else{
+            Salon::create($request->all());
+        }
+
     }
 
     /**
@@ -40,10 +50,28 @@ class SalonController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateSalon $request, Salon $Salon)
     {
         //
-        DB::table('salon')->where('id', $request->id)->update(['salones' => $request->salones]);
+        $salon = Salon::where([['salones', $request->salones],['status', 0]]);
+        $num = $salon->count();
+        $id=0;
+        if ($num > 0) {
+            $salon1 = $salon->get();
+            foreach ($salon1 as $salon2) {
+                # code...
+                $id = $salon2->id;
+            }
+            $salon->update(['status' => 1]);
+            $Salon->update(['status' => 0]);
+        }else{
+            $Salon->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
     }
 
     /**
@@ -52,20 +80,20 @@ class SalonController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Salon $Salon)
     {
         //
-        DB::table('salon')->where('id', $id)->delete();
+        $Salon->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
     {
         $cat="";
         $salones=$request->bs_salones;
-        $cons= DB::table('salon')
-                 ->where('salones','like', "%$salones%")
-                 ->where('status', '1')
-                 ->orderBy('salones','asc');
+        $cons = Salon::where([
+            ['status', '1'],
+            ['salones','like', "%$salones%"]
+        ])->orderBy('salones','asc');
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -107,17 +135,10 @@ class SalonController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('salon')
-                 ->where('id', $id)->get();
+        $salon= Salon::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $salones=$cons2->salones;
-
-        }
         return response()->json([
-            'salones'=>$salones
+            'salones'=>$salon->salones
         ]);
 
 

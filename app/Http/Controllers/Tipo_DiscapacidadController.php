@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeTipo_Discapacidad;
+use App\Http\Requests\Update\updateTipo_Discapacidad;
+use App\Models\Tipo_discapacidad;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class Tipo_DiscapacidadController extends Controller
 {
@@ -15,7 +17,7 @@ class Tipo_DiscapacidadController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('tipo_discapacidad')->where('status', '1')->orderBy('tipo','asc');
+        $cons = Tipo_discapacidad::where('status', '1')->orderBy('tipo','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
         return view('view.tipo_discapacidad',['cons' => $cons2, 'num' => $num, 'js' => $js]);
@@ -27,10 +29,17 @@ class Tipo_DiscapacidadController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeTipo_Discapacidad $request)
     {
         //
-        DB::table('tipo_discapacidad')->insert(['tipo' => $request->tipo]);
+        $tipo_discapacidad = Tipo_Discapacidad::where('tipo', $request->tipo);
+        $num = $tipo_discapacidad->count();
+        if ($num > 0) {
+            # code...
+            $tipo_discapacidad->update(['status' => 1]);
+        }else{
+            Tipo_Discapacidad::create($request->all());
+        }
     }
     /**
      * Update the specified resource in storage.
@@ -39,10 +48,28 @@ class Tipo_DiscapacidadController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateTipo_Discapacidad $request, Tipo_discapacidad $Tipo_Discapacidad)
     {
         //
-        DB::table('tipo_discapacidad')->where('id', $request->id)->update(['tipo' => $request->tipo]);
+        $tipo_discapacidad = Tipo_Discapacidad::where([['tipo', $request->tipo],['status', 0]]);
+        $num = $tipo_discapacidad->count();
+        $id=0;
+        if ($num > 0) {
+            $tipo_discapacidad1 = $tipo_discapacidad->get();
+            foreach ($tipo_discapacidad1 as $tipo_discapacidad2) {
+                # code...
+                $id = $tipo_discapacidad2->id;
+            }
+            $tipo_discapacidad->update(['status' => 1]);
+            $Tipo_Discapacidad->update(['status' => 0]);
+        }else{
+            $Tipo_Discapacidad->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
     }
 
     /**
@@ -51,20 +78,20 @@ class Tipo_DiscapacidadController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Tipo_discapacidad $Tipo_Discapacidad)
     {
         //
-        DB::table('tipo_discapacidad')->where('id', $id)->delete();
+        $Tipo_Discapacidad->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
     {
         $cat="";
         $tipo=$request->bs_tipo;
-        $cons= DB::table('tipo_discapacidad')
-                 ->where('tipo','like', "%$tipo%")
-                 ->where('status', '1')
-                 ->orderBy('tipo','asc');
+        $cons = Tipo_discapacidad::where([
+            ['status', '1'],
+            ['tipo','like', "%$tipo%"]
+        ])->orderBy('tipo','asc');
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -106,17 +133,10 @@ class Tipo_DiscapacidadController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('tipo_discapacidad')
-                 ->where('id', $id)->get();
+        $tipo_discapacidad = Tipo_discapacidad::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $tipo=$cons2->tipo;
-
-        }
         return response()->json([
-            'tipo'=>$tipo
+            'tipo'=>$tipo_discapacidad->tipo
         ]);
 
 

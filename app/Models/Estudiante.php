@@ -11,7 +11,7 @@ class Estudiante extends Model
 
     protected $table = 'estudiante';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['fecha_nacimiento', 'lugar_nacimiento', 'descripcion', 'persona'];
 }

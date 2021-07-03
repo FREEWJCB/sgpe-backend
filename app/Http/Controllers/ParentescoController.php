@@ -3,23 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Store\storeParentesco;
+use App\Http\Requests\Update\updateParentesco;
+use App\Models\Parentesco;
+// use Illuminate\Support\Facades\DB;
 
-class MarcaController extends Controller
+class ParentescoController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($js="AJAX")
+    public function index()
     {
         //
-        $cons = DB::table('marcas')->where('status', '1')->orderBy('marca','asc');
+        $cons = Parentesco::where('status', '1')->orderBy('parentescos','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
-        return view('view.marca',['cons' => $cons2, 'num' => $num, 'js' => $js]);
-
+        return view('view.parentesco',['cons' => $cons2, 'num' => $num, 'js' => $js]);
     }
 
     /**
@@ -28,13 +30,19 @@ class MarcaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeParentesco $request)
     {
         //
-        DB::table('marcas')->insert(['marca' => $request->marca]);
+        $parentesco = Parentesco::where('parentescos', $request->parentescos);
+        $num = $parentesco->count();
+        if ($num > 0) {
+            # code...
+            $parentesco->update(['status' => 1]);
+        }else{
+            Parentesco::create($request->all());
+        }
 
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -43,10 +51,29 @@ class MarcaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateParentesco $request, Parentesco $Parentesco)
     {
         //
-        DB::table('marcas')->where('id', $request->id)->update(['marca' => $request->marca]);
+        $parentesco = Parentesco::where([['parentescos', $request->parentescos],['status', 0]]);
+        $num = $parentesco->count();
+        $id=0;
+        if ($num > 0) {
+            $parentesco1 = $parentesco->get();
+            foreach ($parentesco1 as $parentesco2) {
+                # code...
+                $id = $parentesco2->id;
+            }
+            $parentesco->update(['status' => 1]);
+            $Parentesco->update(['status' => 0]);
+        }else{
+            $Parentesco->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
+
     }
 
     /**
@@ -55,20 +82,22 @@ class MarcaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Parentesco $Parentesco)
     {
         //
-        DB::table('marcas')->where('id', $id)->delete();
+        // DB::table('parentesco')->where('id', $Parentesco->id)->update(['status' => 0]);
+        $Parentesco->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
     {
         $cat="";
-        $marca=$request->bs_marca;
-        $cons= DB::table('marcas')
-                 ->where('marca','like', "%$marca%")
-                 ->where('status', '1')
-                 ->orderBy('marca','asc');
+        $parentescos=$request->bs_parentescos;
+        $cons = Parentesco::where([
+            ['status', '1'],
+            ['parentescos','like', "%$parentescos%"]
+            ])->orderBy('parentescos','asc');
+
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -78,10 +107,10 @@ class MarcaController extends Controller
                 # code...
                 $i++;
                 $id=$cons2->id;
-                $marca=$cons2->marca;
+                $parentescos=$cons2->parentescos;
                 $cat.="<tr>
                         <th scope='row'><center>$i</center></th>
-                        <td><center>$marca</center></td>
+                        <td><center>$parentescos</center></td>
                         <td>
                             <center data-turbolinks='false' class='navbar navbar-light'>
                                 <a onclick = \"return mostrar($id,'Mostrar');\" class='btn btn-info btncolorblanco' href='#' >
@@ -110,17 +139,10 @@ class MarcaController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('marcas')
-                 ->where('id', $id)->get();
+        $parentesco = Parentesco::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $marca=$cons2->marca;
-
-        }
         return response()->json([
-            'marca'=>$marca
+            'parentescos'=>$parentesco->parentescos
         ]);
 
 

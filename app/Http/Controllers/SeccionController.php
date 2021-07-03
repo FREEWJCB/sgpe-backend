@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeSeccion;
+use App\Http\Requests\Update\updateSeccion;
+use App\Models\Seccion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SeccionController extends Controller
 {
@@ -15,7 +17,7 @@ class SeccionController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('seccion')->where('status', '1')->orderBy('secciones','asc');
+        $cons = Seccion::where('status', '1')->orderBy('secciones','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
         return view('view.seccion',['cons' => $cons2, 'num' => $num, 'js' => $js]);
@@ -27,10 +29,18 @@ class SeccionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeSeccion $request)
     {
         //
-        DB::table('seccion')->insert(['secciones' => $request->secciones]);
+        $seccion = Seccion::where('secciones', $request->secciones);
+        $num = $seccion->count();
+        if ($num > 0) {
+            # code...
+            $seccion->update(['status' => 1]);
+        }else{
+            Seccion::create($request->all());
+        }
+
     }
     /**
      * Update the specified resource in storage.
@@ -39,10 +49,28 @@ class SeccionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateSeccion $request, Seccion $Seccion)
     {
         //
-        DB::table('seccion')->where('id', $request->id)->update(['secciones' => $request->secciones]);
+        $seccion = Seccion::where([['secciones', $request->secciones],['status', 0]]);
+        $num = $seccion->count();
+        $id=0;
+        if ($num > 0) {
+            $seccion1 = $seccion->get();
+            foreach ($seccion1 as $seccion2) {
+                # code...
+                $id = $seccion2->id;
+            }
+            $seccion->update(['status' => 1]);
+            $Seccion->update(['status' => 0]);
+        }else{
+            $Seccion->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
     }
 
     /**
@@ -51,20 +79,20 @@ class SeccionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Seccion $Seccion)
     {
         //
-        DB::table('seccion')->where('id', $id)->delete();
+        $Seccion->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
     {
         $cat="";
         $secciones=$request->bs_secciones;
-        $cons= DB::table('seccion')
-                 ->where('secciones','like', "%$secciones%")
-                 ->where('status', '1')
-                 ->orderBy('secciones','asc');
+        $cons = Seccion::where([
+            ['status', '1'],
+            ['secciones','like', "%$secciones%"]
+        ])->orderBy('secciones','asc');
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -106,17 +134,10 @@ class SeccionController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('seccion')
-                 ->where('id', $id)->get();
+        $seccion= Seccion::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $secciones=$cons2->secciones;
-
-        }
         return response()->json([
-            'secciones'=>$secciones
+            'secciones'=>$seccion->secciones
         ]);
 
 

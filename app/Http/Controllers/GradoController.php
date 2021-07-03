@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeGrado;
+use App\Http\Requests\Update\updateGrado;
+use App\Models\Grado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +18,7 @@ class GradoController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('grado')->where('status', '1')->orderBy('grados','asc');
+        $cons = Grado::where('status', '1')->orderBy('grados','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
         return view('view.grado',['cons' => $cons2, 'num' => $num, 'js' => $js]);
@@ -27,10 +30,17 @@ class GradoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeGrado $request)
     {
         //
-        DB::table('grado')->insert(['grados' => $request->grados]);
+        $grado = Grado::where('grados', $request->grados);
+        $num = $grado->count();
+        if ($num > 0) {
+            # code...
+            $grado->update(['status' => 1]);
+        }else{
+            Grado::create($request->all());
+        }
     }
 
     /**
@@ -40,10 +50,28 @@ class GradoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateGrado $request, Grado $Grado)
     {
         //
-        DB::table('grado')->where('id', $request->id)->update(['grados' => $request->grados]);
+        $grado = Grado::where([['grados', $request->grados],['status', 0]]);
+        $num = $grado->count();
+        $id=0;
+        if ($num > 0) {
+            $grado1 = $grado->get();
+            foreach ($grado1 as $grado2) {
+                # code...
+                $id = $grado2->id;
+            }
+            $grado->update(['status' => 1]);
+            $Grado->update(['status' => 0]);
+        }else{
+            $Grado->update($request->all());
+        }
+
+        return response()->json([
+            'i' => $num,
+            'id' => $id
+        ]);
     }
 
     /**
@@ -52,20 +80,20 @@ class GradoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Grado $Grado)
     {
         //
-        DB::table('grado')->where('id', $id)->delete();
+        $Grado->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
     {
         $cat="";
         $grados=$request->bs_grados;
-        $cons= DB::table('grado')
-                 ->where('grados','like', "%$grados%")
-                 ->where('status', '1')
-                 ->orderBy('grados','asc');
+        $cons= Grado::where([
+                ['status', '1'],
+                ['grados','like', "%$grados%"]
+            ])->orderBy('grados','asc');
         $cons1 = $cons->get();
         $num = $cons->count();
         if ($num>0) {
@@ -107,17 +135,10 @@ class GradoController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('grado')
-                 ->where('id', $id)->get();
+        $grado= Grado::find($request->id);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $grados=$cons2->grados;
-
-        }
         return response()->json([
-            'grados'=>$grados
+            'grados'=>$grado->grados
         ]);
 
 

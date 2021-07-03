@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeRepresentante;
+use App\Http\Requests\Update\updateRepresentante;
+use App\Models\Ocupacion_laboral;
+use App\Models\Persona;
+use App\Models\Representante;
+use App\Models\State;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,22 +21,21 @@ class RepresentanteController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('representante')
-                    ->select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
-                    ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
-                    ->join('persona', 'representante.persona', '=', 'persona.id')
-                    ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-                    ->join('state', 'municipality.state', '=', 'state.id')
-                    ->where('representante.status', '1')
-                    ->orderBy('cedula','asc');
+        $cons = Representante::select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+                    ->join([
+                        ['ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id'],
+                        ['persona', 'representante.persona', '=', 'persona.id'],
+                        ['municipality', 'persona.municipality', '=', 'municipality.id'],
+                        ['state', 'municipality.state', '=', 'state.id']
+                    ])->where('representante.status', '1')->orderBy('cedula','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
 
-        $ocupacion_laboral = DB::table('ocupacion_laboral')->where('status', '1')->orderBy('labor','asc');
+        $ocupacion_laboral = Ocupacion_laboral::where('status', '1')->orderBy('labor','asc');
         $ocupacion_laboral2 = $ocupacion_laboral->get();
         $num_ocupacion_laboral = $ocupacion_laboral->count();
 
-        $state = DB::table('state')->where('status', '1')->orderBy('states','asc');
+        $state = State::where('status', '1')->orderBy('states','asc');
         $state2 = $state->get();
         $num_state = $state->count();
 
@@ -43,29 +48,14 @@ class RepresentanteController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeRepresentante $request)
     {
         //
-        DB::table('persona')->insert([
-            'cedula' => $request->cedula,
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'sex' => $request->sex,
-            'telefono' => $request->telefono,
-            'direccion' => $request->direccion,
-            'municipality' => $request->municipality
-            ]);
-
-        $cons = DB::table('persona')->where('cedula', $request->cedula)->get();
-
-        foreach ($cons as $cons2) {
-            # code...
-            $persona=$cons2->id;
-        }
+        $persona = Persona::create($request->all());
 
         DB::table('representante')->insert([
             'ocupacion_laboral' => $request->ocupacion_laboral,
-            'persona' => $persona
+            'persona' => $persona->id
             ]);
     }
 
@@ -76,19 +66,12 @@ class RepresentanteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateRepresentante $request, Representante $Representante)
     {
         //
-        DB::table('persona')->where('id', $request->persona)->update([
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'sex' => $request->sex,
-            'telefono' => $request->telefono,
-            'direccion' => $request->direccion,
-            'municipality' => $request->municipality
-            ]);
+        Persona::find($request->persona)->update($request->all());
 
-        DB::table('representante')->where('id', $request->id)->update(['ocupacion_laboral' => $request->ocupacion_laboral]);
+        $Representante->update($request->all());
     }
 
     /**
@@ -97,10 +80,10 @@ class RepresentanteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Representante $Representante)
     {
         //
-        DB::table('representante')->where('id', $id)->update(['status' => 0]);
+        $Representante->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
@@ -111,19 +94,21 @@ class RepresentanteController extends Controller
         $apellido=$request->bs_apellido;
         $sex=$request->bs_sex;
         $ocupacion_laboral=$request->bs_ocupacion_laboral;
-        $cons = DB::table('representante')
-                    ->select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
-                    ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
-                    ->join('persona', 'representante.persona', '=', 'persona.id')
-                    ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-                    ->join('state', 'municipality.state', '=', 'state.id')
-                    ->where('cedula','like', "%$cedula%")
-                    ->where('nombre','like', "%$nombre%")
-                    ->where('apellido','like', "%$apellido%")
-                    ->where('sex','like', "%$sex%")
-                    ->where('ocupacion_laboral','like', "%$ocupacion_laboral%")
-                    ->where('representante.status', '1')
-                    ->orderBy('cedula','asc');
+        $cons = Representante::select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+                    ->join([
+                        ['ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id'],
+                        ['persona', 'representante.persona', '=', 'persona.id'],
+                        ['municipality', 'persona.municipality', '=', 'municipality.id'],
+                        ['state', 'municipality.state', '=', 'state.id']
+                    ])
+                    ->where([
+                        ['representante.status', '1'],
+                        ['cedula','like', "%$cedula%"],
+                        ['nombre','like', "%$nombre%"],
+                        ['apellido','like', "%$apellido%"],
+                        ['sex','like', "%$sex%"],
+                        ['ocupacion_laboral','like', "%$ocupacion_laboral%"]
+                    ])->orderBy('cedula','asc');
 
         $cons1 = $cons->get();
         $num = $cons->count();
@@ -174,37 +159,23 @@ class RepresentanteController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('representante')
-                 ->join('persona', 'representante.persona', '=', 'persona.id')
-                 ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-                 ->where('representante.id', $id)->get();
+        $representante= Representante::find($request->id)
+                 ->join([
+                     ['persona', 'representante.persona', '=', 'persona.id'],
+                     ['municipality', 'persona.municipality', '=', 'municipality.id']
+                 ]);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $cedula=$cons2->cedula;
-            $nombre=$cons2->nombre;
-            $apellido=$cons2->apellido;
-            $sex=$cons2->sex;
-            $telefono=$cons2->telefono;
-            $direccion=$cons2->direccion;
-            $state=$cons2->state;
-            $municipality=$cons2->municipality;
-            $ocupacion_laboral=$cons2->ocupacion_laboral;
-            $persona=$cons2->persona;
-
-        }
         return response()->json([
-            'cedula'=>$cedula,
-            'nombre'=>$nombre,
-            'apellido'=>$apellido,
-            'sex'=>$sex,
-            'telefono'=>$telefono,
-            'direccion'=>$direccion,
-            'state'=>$state,
-            'municipality'=>$municipality,
-            'ocupacion_laboral'=>$ocupacion_laboral,
-            'persona'=>$persona
+            'cedula'=>$representante->cedula,
+            'nombre'=>$representante->nombre,
+            'apellido'=>$representante->apellido,
+            'sex'=>$representante->sex,
+            'telefono'=>$representante->telefono,
+            'direccion'=>$representante->direccion,
+            'state'=>$representante->state,
+            'municipality'=>$representante->municipality,
+            'ocupacion_laboral'=>$representante->ocupacion_laboral,
+            'persona'=>$representante->persona
         ]);
 
 

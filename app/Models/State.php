@@ -11,7 +11,7 @@ class State extends Model
 
     protected $table = 'state';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['states'];
 }

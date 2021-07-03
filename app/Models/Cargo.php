@@ -11,7 +11,7 @@ class Cargo extends Model
 
     protected $table = 'cargo';
 
-    protected $guarded = ['status'];
+    protected $guarded = ['id'];
 
     // protected $fillable = ['cargos'];
 }

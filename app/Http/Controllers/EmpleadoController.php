@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Store\storeEmpleado;
+use App\Http\Requests\Update\updateEmpleado;
+use App\Models\Cargo;
+use App\Models\Empleado;
+use App\Models\Persona;
+use App\Models\State;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 class EmpleadoController extends Controller
 {
     /**
@@ -14,22 +19,19 @@ class EmpleadoController extends Controller
     public function index($js="AJAX")
     {
         //
-        $cons = DB::table('empleado')
-                    ->select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+        $cons = Empleado::select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
                     ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
                     ->join('persona', 'empleado.persona', '=', 'persona.id')
                     ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-                    ->join('state', 'municipality.state', '=', 'state.id')
-                    ->where('empleado.status', '1')
-                    ->orderBy('cedula','asc');
+                    ->join('state', 'municipality.state', '=', 'state.id')->where('empleado.status', '1')->orderBy('cedula','asc');
         $cons2 = $cons->get();
         $num = $cons->count();
 
-        $cargo = DB::table('cargo')->where('status', '1')->orderBy('cargos','asc');
+        $cargo = Cargo::where('status', '1')->orderBy('cargos','asc');
         $cargo2 = $cargo->get();
         $num_cargo = $cargo->count();
 
-        $state = DB::table('state')->where('status', '1')->orderBy('states','asc');
+        $state = State::where('status', '1')->orderBy('states','asc');
         $state2 = $state->get();
         $num_state = $state->count();
 
@@ -42,30 +44,15 @@ class EmpleadoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(storeEmpleado $request)
     {
         //
-        DB::table('persona')->insert([
-            'cedula' => $request->cedula,
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'sex' => $request->sex,
-            'telefono' => $request->telefono,
-            'direccion' => $request->direccion,
-            'municipality' => $request->municipality
-            ]);
+        $persona = Persona::create($request->all());
 
-        $cons = DB::table('persona')->where('cedula', $request->cedula)->get();
-
-        foreach ($cons as $cons2) {
-            # code...
-            $persona=$cons2->id;
-        }
-
-        DB::table('empleado')->insert([
+        Empleado::create([
             'email' => $request->email,
             'cargo' => $request->cargo,
-            'persona' => $persona
+            'persona' => $persona->id
             ]);
 
     }
@@ -77,22 +64,12 @@ class EmpleadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(updateEmpleado $request, Empleado $Empleado)
     {
         //
-        DB::table('persona')->where('id', $request->persona)->update([
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'sex' => $request->sex,
-            'telefono' => $request->telefono,
-            'direccion' => $request->direccion,
-            'municipality' => $request->municipality
-            ]);
+        Persona::where('id', $request->persona)->update($request->all());
 
-        DB::table('empleado')->where('id', $request->id)->update([
-            'email' => $request->email,
-            'cargo' => $request->cargo
-            ]);
+        $Empleado->update($request->all());
 
     }
 
@@ -102,10 +79,10 @@ class EmpleadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Empleado $Empleado)
     {
         //
-        DB::table('empleado')->where('id', $id)->update(['status' => 0]);
+        $Empleado->update(['status' => 0]);
     }
 
     public function cargar(Request $request)
@@ -117,19 +94,22 @@ class EmpleadoController extends Controller
         $sex=$request->bs_sex;
         $email=$request->bs_email;
         $cargo=$request->bs_cargo;
-        $cons = DB::table('empleado')
-                    ->select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
-                    ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
-                    ->join('persona', 'empleado.persona', '=', 'persona.id')
-                    ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-                    ->join('state', 'municipality.state', '=', 'state.id')
-                    ->where('cedula','like', "%$cedula%")
-                    ->where('nombre','like', "%$nombre%")
-                    ->where('apellido','like', "%$apellido%")
-                    ->where('sex','like', "%$sex%")
-                    ->where('email','like', "%$email%")
-                    ->where('cargo','like', "%$cargo%")
-                    ->where('empleado.status', '1')
+        $cons = Empleado::select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+                    ->join([
+                        ['cargo', 'empleado.cargo', '=', 'cargo.id'],
+                        ['persona', 'empleado.persona', '=', 'persona.id'],
+                        ['municipality', 'persona.municipality', '=', 'municipality.id'],
+                        ['state', 'municipality.state', '=', 'state.id']
+                        ])
+                    ->where([
+                        ['empleado.status', '1'],
+                        ['cedula','like', "%$cedula%"],
+                        ['nombre','like', "%$nombre%"],
+                        ['apellido','like', "%$apellido%"],
+                        ['sex','like', "%$sex%"],
+                        ['email','like', "%$email%"],
+                        ['cargo','like', "%$cargo%"]
+                        ])
                     ->orderBy('cedula','asc');
 
         $cons1 = $cons->get();
@@ -183,39 +163,24 @@ class EmpleadoController extends Controller
     public function mostrar(Request $request)
     {
         //
-        $id=$request->id;
-        $cons= DB::table('empleado')
-                 ->join('persona', 'empleado.persona', '=', 'persona.id')
-                 ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-                 ->where('empleado.id', $id)->get();
+        $empleado = Empleado::find($request->id)
+                    ->join([
+                        ['persona', 'empleado.persona', '=', 'persona.id'],
+                        ['municipality', 'persona.municipality', '=', 'municipality.id']
+                    ]);
 
-        foreach ($cons as $cons2) {
-            # code...
-            $cedula=$cons2->cedula;
-            $nombre=$cons2->nombre;
-            $apellido=$cons2->apellido;
-            $sex=$cons2->sex;
-            $telefono=$cons2->telefono;
-            $direccion=$cons2->direccion;
-            $state=$cons2->state;
-            $municipality=$cons2->municipality;
-            $email=$cons2->email;
-            $cargo=$cons2->cargo;
-            $persona=$cons2->persona;
-
-        }
         return response()->json([
-            'cedula'=>$cedula,
-            'nombre'=>$nombre,
-            'apellido'=>$apellido,
-            'sex'=>$sex,
-            'telefono'=>$telefono,
-            'direccion'=>$direccion,
-            'state'=>$state,
-            'municipality'=>$municipality,
-            'email'=>$email,
-            'cargo'=>$cargo,
-            'persona'=>$persona
+            'cedula'=>$empleado->cedula,
+            'nombre'=>$empleado->nombre,
+            'apellido'=>$empleado->apellido,
+            'sex'=>$empleado->sex,
+            'telefono'=>$empleado->telefono,
+            'direccion'=>$empleado->direccion,
+            'state'=>$empleado->state,
+            'municipality'=>$empleado->municipality,
+            'email'=>$empleado->email,
+            'cargo'=>$empleado->cargo,
+            'persona'=>$empleado->persona
         ]);
 
 
