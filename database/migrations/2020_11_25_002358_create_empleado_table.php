@@ -16,6 +16,10 @@ class CreateEmpleadoTable extends Migration
         Schema::create('empleado', function (Blueprint $table) {
             $table->id();
             $table->string('email',100)->unique();
+            $table->date("anio_ing_inst");
+            $table->date("anio_ing_mppe");
+            $table->string("tit_pregrad", 100)->nullable();
+            $table->string("tit_postgrad", 100)->nullable();
             $table->unsignedBigInteger('cargo');
             $table->unsignedBigInteger('persona');
             $table->decimal('status',1,0)->default(1);

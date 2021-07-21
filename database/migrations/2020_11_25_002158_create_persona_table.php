@@ -21,8 +21,8 @@ class CreatePersonaTable extends Migration
             $table->string('sex',100);
             $table->string('telefono',11);
             $table->text('direccion');
-            $table->unsignedBigInteger('parroquia');
-            $table->foreign('parroquia')->references('id')->on('parroquia');
+            $table->unsignedBigInteger('municipality');
+            $table->foreign('municipality')->references('id')->on('municipality');
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateParentescoTable extends Migration
+class CreateUsuarioPasswordTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateParentescoTable extends Migration
      */
     public function up()
     {
-        Schema::create('parentesco', function (Blueprint $table) {
+        Schema::create('usuario_password', function (Blueprint $table) {
             $table->id();
-            $table->string('parentescos',100)->unique();
+            $table->unsignedBigInteger('usuario');
+            $table->unsignedBigInteger('password');
             $table->decimal('status',1,0)->default(1);
+            $table->foreign('usuario')->references('id')->on('usuario');
+            $table->foreign('password')->references('id')->on('password');
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ class CreateParentescoTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('parentesco');
+        Schema::dropIfExists('password');
     }
 }
