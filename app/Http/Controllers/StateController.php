@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\State;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\State as Validation;
 
 class StateController extends Controller
 {
@@ -37,10 +37,10 @@ class StateController extends Controller
   /**
    * Store a newly created resource in storage.
    *
-   * @param  \Illuminate\Http\Request  $request
+   * @param  App\Http\Requests\State as Validation
    * @return \Illuminate\Http\Response
    */
-  public function store(Request $request)
+  public function store(Validation $request)
   {
     if ($request->has(['estado'])) {
       $res = State::updateOrCreate(['states' => $request->estado]);
@@ -51,11 +51,11 @@ class StateController extends Controller
   /**
    * Update the specified resource in storage.
    *
-   * @param  \Illuminate\Http\Request  $request
+   * @param  App\Http\Requests\State as Validation
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-  public function update(Request $request, $id)
+  public function update(Validation $request, $id)
   {
     //
     $res = State::find($id);
