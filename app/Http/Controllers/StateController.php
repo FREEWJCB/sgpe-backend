@@ -30,7 +30,7 @@ class StateController extends Controller
    */
   public function show($id)
   {
-    return response()->json(State::findOrFail($id), 200);
+    return response()->json(State::findOrFail($id), 302);
     //return new StateResource(State::find($id));
   }
 
@@ -44,7 +44,7 @@ class StateController extends Controller
   {
     if ($request->has(['estado'])) {
       $res = State::updateOrCreate(['states' => $request->estado]);
-      return response()->json($res, 202);
+      return response()->json($res, 201);
     }
   }
 
@@ -58,25 +58,6 @@ class StateController extends Controller
   public function update(Request $request, $id)
   {
     //
-    //$state = State::where([['states', $request->states], ['status', 0]]);
-    //$num = $state->count();
-    //$id = 0;
-    //if ($num > 0) {
-      //$state1 = $state->get();
-      //foreach ($state1 as $state2) {
-        //# code...
-        //$id = $state2->id;
-      //}
-      //$state->update(['status' => 1]);
-      //$State->update(['status' => 0]);
-    //} else {
-      //$State->update($request->all());
-    //}
-
-    //return response()->json([
-      //'i' => $num,
-      //'id' => $id
-    //]);
     $res = State::find($id);
     $res->states = $request->estado;
     $res->save();
@@ -107,6 +88,6 @@ class StateController extends Controller
       $res->delete();
     }
 
-    return response()->json($res, 201);
+    return response()->json($res, 202);
   }
 }

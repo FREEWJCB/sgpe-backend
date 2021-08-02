@@ -13,7 +13,6 @@ use App\Http\Controllers\SeccionController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\GradoController;
 use App\Http\Controllers\ParentescoController;
-use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\ParroquiaController;
 use App\Http\Controllers\Periodo_EscolarController;
 use App\Http\Controllers\EmpleadoController;
@@ -88,10 +87,6 @@ Route::POST('/Grado/rellenar', [GradoController::class,'mostrar'])->name('Grado.
 Route::resource('Parentesco', ParentescoController::class)->except('show','edit','create');
 Route::POST('/Parentescos', [ParentescoController::class,'cargar'])->name('Parentesco.cargar');
 Route::POST('/Parentesco/rellenar', [ParentescoController::class,'mostrar'])->name('Parentesco.mostrar');
-
-Route::resource('Municipality', MunicipalityController::class)->except('show','edit','create');
-Route::POST('/Municipalitys', [MunicipalityController::class,'cargar'])->name('Municipality.cargar');
-Route::POST('/Municipality/rellenar', [MunicipalityController::class,'mostrar'])->name('Municipality.mostrar');
 
 Route::resource('Parroquia', ParroquiaController::class)->except('show','edit','create');
 Route::POST('/Parroquias', [ParroquiaController::class,'cargar'])->name('Parroquia.cargar');

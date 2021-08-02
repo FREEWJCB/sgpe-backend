@@ -19,7 +19,7 @@ class MunicipalityController extends Controller
     public function index()
     {
         //
-        $cons = Municipality::select('municipality.*', 'state.states')
+        $cons = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
                     ->join('state', 'municipality.state', '=', 'state.id')
                     ->where('municipality.status', '1')
                     ->orderBy('municipalitys','asc');
@@ -30,136 +30,69 @@ class MunicipalityController extends Controller
         $state2 = $state->get();
         $num_state = $state->count();
 
-        return view('view.municipality',['cons' => $cons2, 'num' => $num, 'num_state' => $num_state, 'state' => $state2, 'js' => $js]);
+    return response()->json($cons2, 200);
     }
+  /**
+   * Show the profile for the given user.
+   *
+   * @param  int  $id
+   * @return Municipality
+   */
+  public function show($id)
+  {
+    return response()->json(Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
+      ->join('state', 'municipality.state', '=', 'state.id')
+      ->where('municipality.status', '1')
+      ->where('municipality.id', $id)
+      ->get(), 200);
+    //return new StateResource(State::find($id));
+  }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(storeMunicipality $request)
-    {
-        //
-        $municipality = Municipality::where('municipalitys', $request->municipalitys);
-        $num = $municipality->count();
-        if ($num > 0) {
-            # code...
-            $municipality->update(['status' => 1]);
-        }else{
-            Municipality::create($request->all());
-        }
+  /**
+   * Store a newly created resource in storage.
+   *
+   * @param  \Illuminate\Http\Request  $request
+   * @return \Illuminate\Http\Response
+   */
+  public function store(Request $request)
+  {
+    //
+    if ($request->has(['estado_id', 'municipio'])){
+      $res = Municipality::updateOrCreate([
+        'municipalitys' => $request->municipio,
+        'state' => $request->estado_id
+      ]);
+      return response()->json($res, 202);
     }
+  }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(updateMunicipality $request, Municipality $Municipality)
-    {
-        //
-        $municipality = Municipality::where([['municipalitys', $request->municipalitys],['status', 0]]);
-        $num = $municipality->count();
-        $id=0;
-        if ($num > 0) {
-            $municipality1 = $municipality->get();
-            foreach ($municipality1 as $municipality2) {
-                # code...
-                $id = $municipality2->id;
-            }
-            $municipality->update(['status' => 1]);
-            $Municipality->update(['status' => 0]);
-        }else{
-            $Municipality->update($request->all());
-        }
+  /**
+   * Update the specified resource in storage.
+   *
+   * @param  \Illuminate\Http\Request  $request
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function update(Request $request, $id)
+  {
+    //
+    $res = Municipality::find($id);
+    $res->municipalitys = $request->municipio;
+    $res->state = $request->estado_id;
+    $res->save();
+    return response()->json($res, 200);
+  }
 
-        return response()->json([
-            'i' => $num,
-            'id' => $id
-        ]);
-
-
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Municipality $Municipality)
-    {
-        //
-        $Municipality->update(['status' => 0]);
-    }
-
-    public function cargar(Request $request)
-    {
-        $cat="";
-        $state=$request->bs_state;
-        $municipalitys=$request->bs_municipalitys;
-        $cons = Municipality::select('municipality.*', 'state.states')
-                    ->join('state', 'municipality.state', '=', 'state.id')
-                    ->where([
-                        ['municipalitys','like', "%$municipalitys%"],
-                        ['state', 'like', "%$state%"],
-                        ['municipality.status', '1']
-                    ])->orderBy('municipalitys','asc');
-
-        $cons1 = $cons->get();
-        $num = $cons->count();
-        if ($num>0) {
-            # code...
-            $i=0;
-            foreach ($cons1 as $cons2) {
-                # code...
-                $i++;
-                $id=$cons2->id;
-                $states=$cons2->states;
-                $municipalitys=$cons2->municipalitys;
-                $cat.="<tr>
-                        <th scope='row'><center>$i</center></th>
-                        <td><center>$states</center></td>
-                        <td><center>$municipalitys</center></td>
-                        <td>
-                            <center data-turbolinks='false' class='navbar navbar-light'>
-                                <a onclick = \"return mostrar($id,'Mostrar');\" class='btn btn-info btncolorblanco' href='#' >
-                                    <i class='fa fa-list-alt'></i>
-                                </a>
-                                <a onclick = \"return mostrar($id,'Edicion');\" class='btn btn-success btncolorblanco' href='#' >
-                                    <i class='fa fa-edit'></i>
-                                </a>
-                                <a onclick ='return desactivar($id)' class='btn btn-danger btncolorblanco' href='#' >
-                                    <i class='fa fa-trash-alt'></i>
-                                </a>
-                            </center>
-                        </td>
-                    </tr>";
-
-            }
-        }else{
-            $cat="<tr><td colspan='4'>No hay datos registrados</td></tr>";
-        }
-        return response()->json([
-            'catalogo'=>$cat
-        ]);
-
-    }
-
-    public function mostrar(Request $request)
-    {
-        //
-        $municipality = Municipality::find($request->id);
-
-        return response()->json([
-            'state'=> $municipality->state,
-            'municipalitys'=>$municipality->municipalitys
-        ]);
-
-
-    }
+  /**
+   * Remove the specified resource from storage.
+   *
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function destroy($id)
+  {
+    //
+    $res = Municipality::find($id)->delete();
+    return response()->json($res, 202);
+  }
 }
