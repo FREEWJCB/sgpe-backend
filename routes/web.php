@@ -8,10 +8,6 @@ use App\Http\Controllers\Tipo_AlergiaController;
 use App\Http\Controllers\Tipo_DiscapacidadController;
 use App\Http\Controllers\AlergiaController;
 use App\Http\Controllers\DiscapacidadController;
-use App\Http\Controllers\CargoController;
-use App\Http\Controllers\SeccionController;
-use App\Http\Controllers\SalonController;
-use App\Http\Controllers\GradoController;
 use App\Http\Controllers\ParentescoController;
 use App\Http\Controllers\ParroquiaController;
 use App\Http\Controllers\Periodo_EscolarController;
@@ -67,22 +63,6 @@ Route::POST('/Alergia/rellenar', [AlergiaController::class,'mostrar'])->name('Al
 Route::resource('Discapacidad', DiscapacidadController::class)->except('show','edit','create');
 Route::POST('/Discapacidades', [DiscapacidadController::class,'cargar'])->name('Discapacidad.cargar');
 Route::POST('/Discapacidad/rellenar', [DiscapacidadController::class,'mostrar'])->name('Discapacidad.mostrar');
-
-Route::resource('Cargo', CargoController::class)->except('show','edit','create');
-Route::POST('/Cargos', [CargoController::class,'cargar'])->name('Cargo.cargar');
-Route::POST('/Cargo/rellenar', [CargoController::class,'mostrar'])->name('Cargo.mostrar');
-
-Route::resource('Seccion', SeccionController::class)->except('show','edit','create');
-Route::POST('/Secciones', [SeccionController::class,'cargar'])->name('Seccion.cargar');
-Route::POST('/Seccion/rellenar', [SeccionController::class,'mostrar'])->name('Seccion.mostrar');
-
-Route::resource('Salon', SalonController::class)->except('show','edit','create');
-Route::POST('/Salones', [SalonController::class,'cargar'])->name('Salon.cargar');
-Route::POST('/Salon/rellenar', [SalonController::class,'mostrar'])->name('Salon.mostrar');
-
-Route::resource('Grado', GradoController::class)->except('show','edit','create');
-Route::POST('/Grados', [GradoController::class,'cargar'])->name('Grado.cargar');
-Route::POST('/Grado/rellenar', [GradoController::class,'mostrar'])->name('Grado.mostrar');
 
 Route::resource('Parentesco', ParentescoController::class)->except('show','edit','create');
 Route::POST('/Parentescos', [ParentescoController::class,'cargar'])->name('Parentesco.cargar');

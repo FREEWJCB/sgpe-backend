@@ -30,7 +30,7 @@ class StateController extends Controller
    */
   public function show($id)
   {
-    return response()->json(State::findOrFail($id), 302);
+    return response()->json(State::findOrFail($id), 202);
     //return new StateResource(State::find($id));
   }
 
@@ -42,10 +42,8 @@ class StateController extends Controller
    */
   public function store(Validation $request)
   {
-    if ($request->has(['estado'])) {
-      $res = State::updateOrCreate(['states' => $request->estado]);
-      return response()->json($res, 201);
-    }
+    $res = State::updateOrCreate(['states' => $request->estado]);
+    return response()->json($res, 201);
   }
 
   /**
