@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Cargo as Validation;
 use App\Models\Cargo;
-use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 // use Illuminate\Support\Facades\DB;

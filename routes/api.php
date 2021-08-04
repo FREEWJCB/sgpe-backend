@@ -8,6 +8,8 @@ use App\Http\Controllers\CargoController;
 use App\Http\Controllers\SeccionController;
 use App\Http\Controllers\SalonController;
 use App\Http\Controllers\GradoController;
+//use Illuminate\Cache\RateLimiting\Limit;
+//use Illuminate\Support\Facades\RateLimiter;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +21,10 @@ use App\Http\Controllers\GradoController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+//RateLimiter::for('global', function (Request $request) {
+    //return Limit::perMinute(1000);
+//});
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -56,6 +62,14 @@ Route::prefix('seccion')->group(function () {
   Route::delete('/{id}', [SeccionController::class, 'destroy'])->name('seccion.delete');
 });
 
+Route::prefix('grado')->group(function () {
+  Route::get('/', [GradoController::class, 'index'])->name('grado.index');
+  Route::get('/{id}', [GradoController::class, 'show'])->name('grado.show');
+  Route::post('/', [GradoController::class , 'store'])->name('grado.store');
+  Route::put('/{id}', [GradoController::class, 'update'])->name('grado.update');
+  Route::delete('/{id}', [GradoController::class, 'destroy'])->name('grado.delete');
+});
+
 Route::prefix('salon')->group(function () {
   Route::get('/', [SalonController::class, 'index'])->name('salon.index');
   Route::get('/{id}', [SalonController::class, 'show'])->name('salon.show');
@@ -64,10 +78,9 @@ Route::prefix('salon')->group(function () {
   Route::delete('/{id}', [SalonController::class, 'destroy'])->name('salon.delete');
 });
 
-Route::prefix('grado')->group(function () {
-  Route::get('/', [GradoController::class, 'index'])->name('grado.index');
-  Route::get('/{id}', [GradoController::class, 'show'])->name('grado.show');
-  Route::post('/', [GradoController::class , 'store'])->name('grado.store');
-  Route::put('/{id}', [GradoController::class, 'update'])->name('grado.update');
-  Route::delete('/{id}', [GradoController::class, 'destroy'])->name('grado.delete');
-});
+Route::get('{route}', function ($route) {
+  return response()->json([
+    "error" => "Ruta no encontrada",
+    "url" => $route
+  ],404);
+})->where('route', '[A-za-z0-9*]+');

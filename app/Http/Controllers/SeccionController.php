@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Store\storeSeccion;
-use App\Http\Requests\Update\updateSeccion;
+use App\Http\Requests\Seccion as Validation;
 use App\Models\Seccion;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class SeccionController extends Controller
 {
@@ -14,14 +13,35 @@ class SeccionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($js="AJAX")
+    public function index()
     {
         //
         $cons = Seccion::where('status', '1')->orderBy('secciones','asc');
         $cons2 = $cons->get();
-        $num = $cons->count();
-        return view('view.seccion',['cons' => $cons2, 'num' => $num, 'js' => $js]);
+        //$num = $cons->count();
+        return response()->json($cons2, 200);
     }
+
+  /**
+   * Show the profile for the given user.
+   *
+   * @param  int  $id
+   * @return StateCollection
+   */
+  public function show($id)
+  {
+    try {
+      $res = Seccion::findOrFail($id);
+      $code = 200;
+    } catch (ModelNotFoundException $e) {
+      $res = [
+        "error" => $e::class,
+        "message" => "no se encontro la seccion"
+      ];
+      $code = 404;
+    }
+    return response()->json($res,$code);
+  }
 
     /**
      * Store a newly created resource in storage.
@@ -29,117 +49,45 @@ class SeccionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(storeSeccion $request)
+    public function store(Validation $request)
     {
-        //
-        $seccion = Seccion::where('secciones', $request->secciones);
-        $num = $seccion->count();
-        if ($num > 0) {
-            # code...
-            $seccion->update(['status' => 1]);
-        }else{
-            Seccion::create($request->all());
-        }
+    //
+    $res = Seccion::updateOrCreate([
+      'secciones' => $request->seccion,
+      'grado' => $request->grado
+    ]);
+    return response()->json($res, 201);
+  }
+  /**
+   * Update the specified resource in storage.
+   *
+   * @param  \Illuminate\Http\Request  $request
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function update(Validation $request, $id)
+  {
+    //
+    $res = Seccion::find($id);
+    $res->secciones = $request->seccion;
+    $res->grado = $request->grado;
+    $res->save();
+    return response()->json($res, 200);
+  }
 
-    }
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(updateSeccion $request, Seccion $Seccion)
-    {
-        //
-        $seccion = Seccion::where([['secciones', $request->secciones],['status', 0]]);
-        $num = $seccion->count();
-        $id=0;
-        if ($num > 0) {
-            $seccion1 = $seccion->get();
-            foreach ($seccion1 as $seccion2) {
-                # code...
-                $id = $seccion2->id;
-            }
-            $seccion->update(['status' => 1]);
-            $Seccion->update(['status' => 0]);
-        }else{
-            $Seccion->update($request->all());
-        }
+  /**
+   * Remove the specified resource from storage.
+   *
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function destroy($id)
+  {
+    //
+    $res = Seccion::find($id);
+    $res->status = 0;
+    $res->save();
 
-        return response()->json([
-            'i' => $num,
-            'id' => $id
-        ]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Seccion $Seccion)
-    {
-        //
-        $Seccion->update(['status' => 0]);
-    }
-
-    public function cargar(Request $request)
-    {
-        $cat="";
-        $secciones=$request->bs_secciones;
-        $cons = Seccion::where([
-            ['status', '1'],
-            ['secciones','like', "%$secciones%"]
-        ])->orderBy('secciones','asc');
-        $cons1 = $cons->get();
-        $num = $cons->count();
-        if ($num>0) {
-            # code...
-            $i=0;
-            foreach ($cons1 as $cons2) {
-                # code...
-                $i++;
-                $id=$cons2->id;
-                $secciones=$cons2->secciones;
-                $cat.="<tr>
-                        <th scope='row'><center>$i</center></th>
-                        <td><center>$secciones</center></td>
-                        <td>
-                            <center data-turbolinks='false' class='navbar navbar-light'>
-                                <a onclick = \"return mostrar($id,'Mostrar');\" class='btn btn-info btncolorblanco' href='#' >
-                                    <i class='fa fa-list-alt'></i>
-                                </a>
-                                <a onclick = \"return mostrar($id,'Edicion');\" class='btn btn-success btncolorblanco' href='#' >
-                                    <i class='fa fa-edit'></i>
-                                </a>
-                                <a onclick ='return desactivar($id)' class='btn btn-danger btncolorblanco' href='#' >
-                                    <i class='fa fa-trash-alt'></i>
-                                </a>
-                            </center>
-                        </td>
-                    </tr>";
-
-            }
-        }else{
-            $cat="<tr><td colspan='3'>No hay datos registrados</td></tr>";
-        }
-        return response()->json([
-            'catalogo'=>$cat
-        ]);
-
-    }
-
-    public function mostrar(Request $request)
-    {
-        //
-        $seccion= Seccion::find($request->id);
-
-        return response()->json([
-            'secciones'=>$seccion->secciones
-        ]);
-
-
-    }
+    return response()->json($res, 202);
+  }
 }
