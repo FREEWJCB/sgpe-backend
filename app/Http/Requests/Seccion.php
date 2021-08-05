@@ -24,7 +24,7 @@ class Seccion extends FormRequest
     public function rules()
     {
         return [
-          'seccion' => 'required|unique:state,states|string|min:1',
+          'seccion' => 'required|unique:seccion,secciones|string|min:1',
           'grado' => 'required|min:1'
         ];
     }

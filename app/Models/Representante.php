@@ -11,7 +11,7 @@ class Representante extends Model
 
     protected $table = 'representante';
 
-    protected $guarded = ['id', 'persona'];
+    protected $guarded = ['id'];
 
-    // protected $fillable = ['ocupacion_laboral'];
+    // protected $fillable = ['ocupacion_laboral', 'persona'];
 }

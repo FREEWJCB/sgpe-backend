@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Store\storeOcupacion_Laboral;
-use App\Http\Requests\Update\updateOcupacion_Laboral;
+use App\Http\Requests\OcupacionLaboral as Validation;
 use App\Models\Ocupacion_laboral;
-use Illuminate\Http\Request;
 
 class Ocupacion_LaboralController extends Controller
 {
@@ -14,14 +12,33 @@ class Ocupacion_LaboralController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($js="AJAX")
+    public function index()
     {
         //
         $cons = Ocupacion_laboral::where('status', '1')->orderBy('labor','asc');
         $cons2 = $cons->get();
-        $num = $cons->count();
-        return view('view.ocupacion_laboral',['cons' => $cons2, 'num' => $num, 'js' => $js]);
+        //$num = $cons->count();
+        return response()->json($cons2, 200);
     }
+
+  /**
+   * Show the profile for the given user.
+   *
+   * @param  int  $id
+   * @return Municipality
+   */
+  public function show($id)
+  {
+    $ol = Ocupacion_laboral::find($id);
+    if (Ocupacion_laboral::find($id)) {
+      return response()->json($ol, 200);
+    } else {
+      return response()->json([
+        "error" => "No se encontro La ocupacion laboral",
+        "code" => 404
+      ], 404);
+    }
+  }
 
     /**
      * Store a newly created resource in storage.
@@ -29,17 +46,11 @@ class Ocupacion_LaboralController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(storeOcupacion_Laboral $request)
+    public function store(Validation $request)
     {
         //
-        $ocupacion_laboral = Ocupacion_laboral::where('labor', $request->labor);
-        $num = $ocupacion_laboral->count();
-        if ($num > 0) {
-            # code...
-            $ocupacion_laboral->update(['status' => 1]);
-        }else{
-            Ocupacion_laboral::create($request->all());
-        }
+        $ol = Ocupacion_laboral::updateOrCreate(['labor' => $request->labor]);
+        return response()->json($ol, 200);
     }
 
     /**
@@ -49,29 +60,12 @@ class Ocupacion_LaboralController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(updateOcupacion_Laboral $request, Ocupacion_laboral $Ocupacion_Laboral)
+    public function update(Validation $request, $id)
     {
-        //
-        $ocupacion_laboral = Ocupacion_laboral::where([['labor', $request->labor],['status', 0]]);
-        $num = $ocupacion_laboral->count();
-        $id=0;
-        if ($num > 0) {
-            $ocupacion_laboral1 = $ocupacion_laboral->get();
-            foreach ($ocupacion_laboral1 as $ocupacion_laboral2) {
-                # code...
-                $id = $ocupacion_laboral2->id;
-            }
-            $ocupacion_laboral->update(['status' => 1]);
-            $Ocupacion_Laboral->update(['status' => 0]);
-        }else{
-            $Ocupacion_Laboral->update($request->all());
-        }
+      $ol = Ocupacion_laboral::find($id);
+      $ol->labor = $request->labor;
 
-        return response()->json([
-            'i' => $num,
-            'id' => $id
-        ]);
-
+      return response()->json($ol, 200);
     }
 
     /**
@@ -80,68 +74,12 @@ class Ocupacion_LaboralController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Ocupacion_laboral $Ocupacion_Laboral)
+    public function destroy($id)
     {
-        //
-        $Ocupacion_Laboral->update(['status' => 0]);
-    }
+      $ol = Ocupacion_laboral::find($id);
+      $ol->status = 0;
+      $ol->save();
 
-    public function cargar(Request $request)
-    {
-        $cat="";
-        $labor=$request->bs_labor;
-        $cons = Ocupacion_laboral::where([
-            ['status', '1'],
-            ['labor','like', "%$labor%"]
-        ])->orderBy('labor','asc');
-
-        $cons1 = $cons->get();
-        $num = $cons->count();
-        if ($num>0) {
-            # code...
-            $i=0;
-            foreach ($cons1 as $cons2) {
-                # code...
-                $i++;
-                $id=$cons2->id;
-                $labor=$cons2->labor;
-                $cat.="<tr>
-                        <th scope='row'><center>$i</center></th>
-                        <td><center>$labor</center></td>
-                        <td>
-                            <center data-turbolinks='false' class='navbar navbar-light'>
-                                <a onclick = \"return mostrar($id,'Mostrar');\" class='btn btn-info btncolorblanco' href='#' >
-                                    <i class='fa fa-list-alt'></i>
-                                </a>
-                                <a onclick = \"return mostrar($id,'Edicion');\" class='btn btn-success btncolorblanco' href='#' >
-                                    <i class='fa fa-edit'></i>
-                                </a>
-                                <a onclick ='return desactivar($id)' class='btn btn-danger btncolorblanco' href='#' >
-                                    <i class='fa fa-trash-alt'></i>
-                                </a>
-                            </center>
-                        </td>
-                    </tr>";
-
-            }
-        }else{
-            $cat="<tr><td colspan='3'>No hay datos registrados</td></tr>";
-        }
-        return response()->json([
-            'catalogo'=>$cat
-        ]);
-
-    }
-
-    public function mostrar(Request $request)
-    {
-        //
-        $ocupacion_laboral= Ocupacion_laboral::find($request->id);
-
-        return response()->json([
-            'labor'=>$ocupacion_laboral->labor
-        ]);
-
-
+      return response()->noContent(204);
     }
 }

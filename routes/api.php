@@ -6,10 +6,11 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\SeccionController;
-use App\Http\Controllers\SalonController;
 use App\Http\Controllers\GradoController;
-//use Illuminate\Cache\RateLimiting\Limit;
-//use Illuminate\Support\Facades\RateLimiter;
+use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\RepresentanteController;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\Ocupacion_LaboralController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +22,6 @@ use App\Http\Controllers\GradoController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-//RateLimiter::for('global', function (Request $request) {
-    //return Limit::perMinute(1000);
-//});
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -70,17 +67,43 @@ Route::prefix('grado')->group(function () {
   Route::delete('/{id}', [GradoController::class, 'destroy'])->name('grado.delete');
 });
 
-Route::prefix('salon')->group(function () {
-  Route::get('/', [SalonController::class, 'index'])->name('salon.index');
-  Route::get('/{id}', [SalonController::class, 'show'])->name('salon.show');
-  Route::post('/', [SalonController::class , 'store'])->name('salon.store');
-  Route::put('/{id}', [SalonController::class, 'update'])->name('salon.update');
-  Route::delete('/{id}', [SalonController::class, 'destroy'])->name('salon.delete');
+Route::prefix('ocupacionlaboral')->group(function () {
+  Route::get('/', [Ocupacion_LaboralController::class, 'index'])->name('ocupacionlaboral.index');
+  Route::get('/{id}', [Ocupacion_LaboralController::class, 'show'])->name('ocupacionlaboral.show');
+  Route::post('/', [Ocupacion_LaboralController::class , 'store'])->name('ocupacionlaboral.store');
+  Route::put('/{id}', [Ocupacion_LaboralController::class, 'update'])->name('ocupacionlaboral.update');
+  Route::delete('/{id}', [Ocupacion_LaboralController::class, 'destroy'])->name('ocupacionlaboral.delete');
 });
 
-Route::get('{route}', function ($route) {
+Route::prefix('estudiante')->group(function () {
+  Route::get('/', [EstudianteController::class, 'index'])->name('estudiante.index');
+  Route::get('/{id}', [EstudianteController::class, 'show'])->name('estudiante.show');
+  Route::post('/', [EstudianteController::class , 'store'])->name('estudiante.store');
+  Route::put('/{id}', [EstudianteController::class, 'update'])->name('estudiante.update');
+  Route::delete('/{id}', [EstudianteController::class, 'destroy'])->name('estudiante.delete');
+});
+
+Route::prefix('empleado')->group(function () {
+  Route::get('/', [EmpleadoController::class, 'index'])->name('empleado.index');
+  Route::get('/{id}', [EmpleadoController::class, 'show'])->name('empleado.show');
+  Route::post('/', [EmpleadoController::class , 'store'])->name('empleado.store');
+  Route::put('/{id}', [EmpleadoController::class, 'update'])->name('empleado.update');
+  Route::delete('/{id}', [EmpleadoController::class, 'destroy'])->name('empleado.delete');
+});
+
+Route::prefix('representante')->group(function () {
+  Route::get('/', [RepresentanteController::class, 'index'])->name('representante.index');
+  Route::get('/{id}', [RepresentanteController::class, 'show'])->name('representante.show');
+  Route::post('/', [RepresentanteController::class , 'store'])->name('representante.store');
+  Route::put('/{id}', [RepresentanteController::class, 'update'])->name('representante.update');
+  Route::delete('/{id}', [RepresentanteController::class, 'destroy'])->name('representante.delete');
+});
+
+Route::get('{route}', function ($route, Request $request) {
   return response()->json([
     "error" => "Ruta no encontrada",
-    "url" => $route
+    "url" => $route,
+    "data" => $request->headers->all(),
+    "ajax" => $request->ajax()
   ],404);
 })->where('route', '[A-za-z0-9*]+');

@@ -16,7 +16,7 @@ class SeccionController extends Controller
     public function index()
     {
         //
-        $cons = Seccion::where('status', '1')->orderBy('secciones','asc');
+        $cons = Seccion::join('grado', 'grado.id', '=', 'seccion.grado')->where('seccion.status', '1')->orderBy('seccion.secciones','asc');
         $cons2 = $cons->get();
         //$num = $cons->count();
         return response()->json($cons2, 200);
@@ -31,7 +31,7 @@ class SeccionController extends Controller
   public function show($id)
   {
     try {
-      $res = Seccion::findOrFail($id);
+      $res = Seccion::join('grado', 'grado.id', '=', 'seccion.grado')->findOrFail($id);
       $code = 200;
     } catch (ModelNotFoundException $e) {
       $res = [
