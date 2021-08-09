@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\MunicipalityController;
 use App\Http\Controllers\CargoController;
@@ -23,8 +24,14 @@ use App\Http\Controllers\Ocupacion_LaboralController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+  'middleware' => 'api',
+  'prefix' => 'auth'
+], function($route) {
+  Route::post('/login', [AuthController::class, 'login'])->name('login');
+  Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+  Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
+  Route::post('/me', [AuthController::class, 'me'])->name('me');
 });
 
 Route::prefix('estado')->group(function () {
