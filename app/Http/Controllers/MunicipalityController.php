@@ -8,6 +8,16 @@ use App\Http\Requests\Municipality as Validation;
 
 class MunicipalityController extends Controller
 {
+  /**
+   * Create a new AuthController
+   *
+   * @return void
+   * */
+  public function __construct()
+  {
+   $this->middleware('auth:api');
+  }
+
     /**
      * Display a listing of the resource.
      *

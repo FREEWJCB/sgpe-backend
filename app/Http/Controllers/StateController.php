@@ -9,6 +9,16 @@ use App\Http\Requests\State as Validation;
 class StateController extends Controller
 {
   /**
+   * Create a new AuthController
+   *
+   * @return void
+   * */
+  public function __construct()
+  {
+   $this->middleware('auth:api');
+  }
+
+  /**
    * Display a listing of the resource.
    *
    * @return \Illuminate\Http\Response

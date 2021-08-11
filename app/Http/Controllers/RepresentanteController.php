@@ -15,6 +15,16 @@ use App\Http\Requests\Repesentante as Validation;
 class RepresentanteController extends Controller
 {
   /**
+   * Create a new AuthController
+   *
+   * @return void
+   * */
+  public function __construct()
+  {
+    $this->middleware('auth:api');
+  }
+
+  /**
    * Display a listing of the resource.
    *
    * @return \Illuminate\Http\Response
@@ -70,13 +80,13 @@ class RepresentanteController extends Controller
   {
     //
     $persona = Persona::create([
-        'cedula' => $request->cedula,
-        'nombre' => $request->nombre, 
-        'apellido' => $request->apellido,
-        'sex' => $request->sex,
-        'telefono' => $request->telefono,
-        'direccion' => $request->direccion,
-        'municipality' => $request->municipio
+      'cedula' => $request->cedula,
+      'nombre' => $request->nombre,
+      'apellido' => $request->apellido,
+      'sex' => $request->sex,
+      'telefono' => $request->telefono,
+      'direccion' => $request->direccion,
+      'municipality' => $request->municipio
     ]);
 
     $representante = Representante::updateOrCreate([
@@ -85,15 +95,15 @@ class RepresentanteController extends Controller
     ]);
 
     return response()->json([
-        'id' => $representante->id,
-        'cedula' => $persona->cedula,
-        'nombre' => $persona->nombre, 
-        'apellido' => $persona->apellido,
-        'sex' => $persona->sex,
-        'telefono' => $persona->telefono,
-        'direccion' => $persona->direccion,
-        'municipio' => $persona->municipio,
-        'ocupacion_laboral' => $representante->ocupacion_laboral
+      'id' => $representante->id,
+      'cedula' => $persona->cedula,
+      'nombre' => $persona->nombre,
+      'apellido' => $persona->apellido,
+      'sex' => $persona->sex,
+      'telefono' => $persona->telefono,
+      'direccion' => $persona->direccion,
+      'municipio' => $persona->municipio,
+      'ocupacion_laboral' => $representante->ocupacion_laboral
     ], 202);
   }
 
@@ -121,15 +131,15 @@ class RepresentanteController extends Controller
     $representante->save();
 
     return response()->json([
-        'id' => $representante->id,
-        'cedula' => $persona->cedula,
-        'nombre' => $persona->nombre, 
-        'apellido' => $persona->apellido,
-        'sex' => $persona->sex,
-        'telefono' => $persona->telefono,
-        'direccion' => $persona->direccion,
-        'municipio' => $persona->municipality,
-        'ocupacion_laboral' => $representante->ocupacion_laboral,
+      'id' => $representante->id,
+      'cedula' => $persona->cedula,
+      'nombre' => $persona->nombre,
+      'apellido' => $persona->apellido,
+      'sex' => $persona->sex,
+      'telefono' => $persona->telefono,
+      'direccion' => $persona->direccion,
+      'municipio' => $persona->municipality,
+      'ocupacion_laboral' => $representante->ocupacion_laboral,
     ], 200);
   }
 
