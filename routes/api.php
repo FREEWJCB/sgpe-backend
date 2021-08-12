@@ -12,7 +12,7 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\RepresentanteController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Ocupacion_LaboralController;
-
+use App\Http\Controllers\MateriaController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -104,6 +104,14 @@ Route::prefix('representante')->group(function () {
   Route::post('/', [RepresentanteController::class , 'store'])->name('representante.store');
   Route::put('/{id}', [RepresentanteController::class, 'update'])->name('representante.update');
   Route::delete('/{id}', [RepresentanteController::class, 'destroy'])->name('representante.delete');
+});
+
+Route::prefix('materia')->group(function () {
+  Route::get('/', [MateriaController::class, 'index'])->name('materia.index');
+  Route::get('/{id}', [MateriaController::class, 'show'])->name('materia.show');
+  Route::post('/', [MateriaController::class , 'store'])->name('materia.store');
+  Route::put('/{id}', [MateriaController::class, 'update'])->name('materia.update');
+  Route::delete('/{id}', [MateriaController::class, 'destroy'])->name('materia.delete');
 });
 
 Route::get('{route}', function ($route, Request $request) {
