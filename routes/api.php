@@ -13,6 +13,8 @@ use App\Http\Controllers\RepresentanteController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Ocupacion_LaboralController;
 use App\Http\Controllers\MateriaController;
+use App\Http\Controllers\ComboboxController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,7 +29,7 @@ use App\Http\Controllers\MateriaController;
 Route::group([
   'middleware' => 'api',
   'prefix' => 'auth'
-], function($route) {
+], function() {
   Route::post('/login', [AuthController::class, 'login'])->name('login');
   Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
   Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
@@ -112,6 +114,13 @@ Route::prefix('materia')->group(function () {
   Route::post('/', [MateriaController::class , 'store'])->name('materia.store');
   Route::put('/{id}', [MateriaController::class, 'update'])->name('materia.update');
   Route::delete('/{id}', [MateriaController::class, 'destroy'])->name('materia.delete');
+});
+
+Route::prefix('cbbx')->group(function () {
+  Route::get('estado', [ComboboxController::class, 'estado'])->name('cbbx.estado');
+  Route::get('/municipio/{id}', [ComboboxController::class, 'municipio'])->name('cbbx.municipio');
+  Route::get('/cargo', [ComboboxController::class , 'cargo'])->name('cbbx.cargo');
+  Route::get('/ocupacionlaboral', [ComboboxController::class, 'ocupacionlaboral'])->name('cbbx.ocupacionlaboral');
 });
 
 Route::get('{route}', function ($route, Request $request) {
