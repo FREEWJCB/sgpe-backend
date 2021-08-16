@@ -6,36 +6,41 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class Estudiante extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
+  /**
+   * Determine if the user is authorized to make this request.
+   *
+   * @return bool
+   */
+  public function authorize()
+  {
+    return true;
+  }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
-    {
-      return [
-        'cedula' => 'required|unique:persona,cedula|numeric|min:1111111|max:100000000',
-        'nombre' => 'required|string|min:5|max:30',
-        'apellido' => 'required|string|min:5|max:30',
-        'sex' => 'required',
-        'telefono' => 'required|string|min:11|max:12',
-        'direccion' => 'required|string|min:10|max:50',
-        'municipio' => 'required|numeric|min:1',
-        'fecha_nacimiento' => 'required|date',
-        'lugar_nacimiento' => 'required|string|min:10',
-        'descripcion' => 'required|string|min:10'
-        ];
+  /**
+   * Get the validation rules that apply to the request.
+   *
+   * @return array
+   */
+  public function rules()
+  {
+    if ($this->method() == "POST") {
+      $cedula = 'required|unique:persona,cedula|numeric|min:1111111|max:100000000';
+    } else {
+      $cedula = 'required|numeric|min:1111111|max:100000000';
     }
+    return [
+      'cedula' => $cedula,
+      'nombre' => 'required|string|min:5|max:30',
+      'apellido' => 'required|string|min:5|max:30',
+      'sex' => 'required',
+      'telefono' => 'required|string|min:11|max:12',
+      'direccion' => 'required|string|min:10|max:50',
+      'municipio' => 'required|numeric|min:1',
+      'fecha_nacimiento' => 'required|date',
+      'lugar_nacimiento' => 'required|string|min:10',
+      'descripcion' => 'required|string|min:10'
+    ];
+  }
 
   /**
    * Get the error messages for the defined validation rules.

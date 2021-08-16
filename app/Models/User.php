@@ -25,6 +25,8 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'pregunta',
+        'empleado'
     ];
 
     /**
@@ -37,6 +39,7 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'respuesta'
     ];
 
     /**
@@ -47,15 +50,6 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
-    //protected $appends = [
-        //'profile_photo_url',
-    //];
 
     /**
      * Get the identifer that will be storedin the subject claim of the JWT

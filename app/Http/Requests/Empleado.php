@@ -6,35 +6,40 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class Empleado extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
+  /**
+   * Determine if the user is authorized to make this request.
+   *
+   * @return bool
+   */
+  public function authorize()
+  {
+    return true;
+  }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
-    {
-        return [
-        'cedula' => 'required|unique:persona,cedula|numeric|min:1111111|max:100000000',
-        'nombre' => 'required|string|min:5|max:30',
-        'apellido' => 'required|string|min:5|max:30',
-        'sex' => 'required',
-        'telefono' => 'required|string|min:11|max:12',
-        'direccion' => 'required|string|min:10|max:50',
-        'municipio' => 'required|numeric|min:1',
-        'email' => 'required|email',
-        'cargo' => 'required|numeric|min:1'
-        ];
+  /**
+   * Get the validation rules that apply to the request.
+   *
+   * @return array
+   */
+  public function rules()
+  {
+    if ($this->method() == "POST") {
+      $cedula = 'required|unique:persona,cedula|numeric|min:1111111|max:100000000';
+    } else {
+      $cedula = 'required|numeric|min:1111111|max:100000000';
     }
+    return [
+      'cedula' => $cedula,
+      'nombre' => 'required|string|min:5|max:30',
+      'apellido' => 'required|string|min:5|max:30',
+      'sex' => 'required',
+      'telefono' => 'required|string|min:11|max:12',
+      'direccion' => 'required|string|min:10|max:50',
+      'municipio' => 'required|numeric|min:1',
+      'email' => 'required|email',
+      'cargo' => 'required|numeric|min:1'
+    ];
+  }
 
   /**
    * Get the error messages for the defined validation rules.
@@ -78,17 +83,17 @@ class Empleado extends FormRequest
     ];
   }
 
-    /**
-     * Response if the request is for ajax
-     *
-     * @return response
-     */
-    public function ajax()
-    {
-      if(!$this->ajax()){
-        return response()->json([
-          "error" => "solo se acepta ajax"
-        ]);
-      }
+  /**
+   * Response if the request is for ajax
+   *
+   * @return response
+   */
+  public function ajax()
+  {
+    if (!$this->ajax()) {
+      return response()->json([
+        "error" => "solo se acepta ajax"
+      ]);
     }
+  }
 }

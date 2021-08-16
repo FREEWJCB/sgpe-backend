@@ -14,6 +14,7 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Ocupacion_LaboralController;
 use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\ComboboxController;
+use App\Http\Controllers\UsuarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,6 +107,14 @@ Route::prefix('representante')->group(function () {
   Route::post('/', [RepresentanteController::class , 'store'])->name('representante.store');
   Route::put('/{id}', [RepresentanteController::class, 'update'])->name('representante.update');
   Route::delete('/{id}', [RepresentanteController::class, 'destroy'])->name('representante.delete');
+});
+
+Route::prefix('usuario')->group(function () {
+  Route::get('/', [UsuarioController::class, 'index'])->name('usuario.index');
+  Route::get('/{id}', [UsuarioController::class, 'show'])->name('usuario.show');
+  Route::post('/', [UsuarioController::class , 'store'])->name('usuario.store');
+  Route::put('/{id}', [UsuarioController::class, 'update'])->name('usuario.update');
+  Route::delete('/{id}', [UsuarioController::class, 'destroy'])->name('usuario.delete');
 });
 
 Route::prefix('materia')->group(function () {

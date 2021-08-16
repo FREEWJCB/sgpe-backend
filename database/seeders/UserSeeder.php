@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -22,6 +23,10 @@ class UserSeeder extends Seeder
             'name' => 'Jose Daniel Vasquez pineda',
             'email' => 'vasquezpinedaj@gmail.com',
             'password' => Hash::make('562738194'),
+            'remember_token' => Str::random(10),
+            'tipo' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
   }
 }
