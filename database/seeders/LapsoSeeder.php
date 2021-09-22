@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class EmpleadoSeeder extends Seeder
+class LapsoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,8 +14,10 @@ class EmpleadoSeeder extends Seeder
      */
     public function run()
     {
-      DB::table('empleado')->insert([
-        "cargo" => 1, "persona" => 1
-      ]);
+      DB::table("lapso")->insert(
+        ["numero" => "1"],
+        ["numero" => "2"],
+        ["numero" => "3"],
+      );
     }
 }

@@ -36,7 +36,6 @@ class Empleado extends FormRequest
       'telefono' => 'required|string|min:11|max:12',
       'direccion' => 'required|string|min:10|max:50',
       'municipio' => 'required|numeric|min:1',
-      'email' => 'required|email',
       'cargo' => 'required|numeric|min:1'
     ];
   }
@@ -75,8 +74,6 @@ class Empleado extends FormRequest
       'municipio.required' => 'Es requerido el municipio',
       'municipio.numeric' => 'El Municipio debe tener solo numeros',
       'municipio.min' => 'El municipio de ser minimo de 1 numeros',
-      'email.required' => 'Es requerido el correo electronico',
-      'email.email' => 'Esta mal escrito el correo electronico',
       'cargo.required' => 'Debe Seleccionar un cargo',
       'cargo.numeric' => 'Debe Seleccionar un cargo',
       'cargo.min' => 'Debe Seleccionar un cargo'

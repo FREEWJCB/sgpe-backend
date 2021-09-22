@@ -85,7 +85,6 @@ class EmpleadoController extends Controller
 
 
     $empleado = Empleado::create([
-      'email' => $request->email,
       'cargo' => $request->cargo,
       'persona' => $persona->id
     ]);
@@ -112,7 +111,6 @@ class EmpleadoController extends Controller
     $persona->telefono = $request->telefono;
     $persona->direccion = $request->direccion;
     $persona->municipality = $request->municipio;
-    $empleado->email = $request->email;
     $empleado->cargo = $request->cargo;
     $persona->save();
     $empleado->save();

@@ -15,7 +15,6 @@ class CreateEmpleadoTable extends Migration
     {
         Schema::create('empleado', function (Blueprint $table) {
             $table->id();
-            $table->string('email',100)->unique();
             $table->unsignedBigInteger('cargo');
             $table->unsignedBigInteger('persona');
             $table->decimal('status',1,0)->default(1);

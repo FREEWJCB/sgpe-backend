@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empleado;
+use App\Models\Tipo_usuario;
 
 class AuthController extends Controller
 {
@@ -37,7 +39,21 @@ class AuthController extends Controller
    */
   public function me()
   {
-    return response()->json(auth()->user());
+
+    $idEmpleado = auth()->user();
+    $empleado = Empleado::select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+      ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
+      ->join('persona', 'empleado.persona', '=', 'persona.id')
+      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+      ->join('state', 'municipality.state', '=', 'state.id')
+      ->where('empleado.id', $idEmpleado->empleado)
+      ->get();
+    $tipo = Tipo_Usuario::where('tipo', $idEmpleado->tipo);
+    return response()->json([
+      "user" => auth()->user(),
+      "empleado" => $empleado,
+      "tipo" => $tipo
+    ]);
   }
 
   /**

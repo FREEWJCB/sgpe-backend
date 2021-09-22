@@ -34,6 +34,25 @@ class GradoController extends Controller
   }
 
   /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = Grado::where([
+      ['status', '=', '1'],
+      ['grados', 'like', '%' . $busqueda . '%']
+    ]
+    )->orderBy('id', 'desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
+  }
+
+  /**
    * Show the profile for the given user.
    *
    * @param  int  $id

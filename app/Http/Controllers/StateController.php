@@ -21,12 +21,33 @@ class StateController extends Controller
   /**
    * Display a listing of the resource.
    *
+   * @param string busqueda
    * @return \Illuminate\Http\Response
    */
   public function index()
   {
     //
-    $res = State::where('status', '1')->orderBy('states', 'asc');
+    $res = State::where('status', '1')
+      ->orderBy('id', 'desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
+  }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = State::where([
+      ['status', '=', '1'],
+      ['states', 'like', '%' . $busqueda . '%']
+    ]
+    )->orderBy('id', 'desc');
     $res = $res->get();
     //$num = $cons->count();
     return response()->json($res, 200);

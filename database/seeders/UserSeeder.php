@@ -20,7 +20,6 @@ class UserSeeder extends Seeder
     User::factory(10)->create();
 
     DB::table('users')->insert([
-            'name' => 'Jose Daniel Vasquez pineda',
             'email' => 'vasquezpinedaj@gmail.com',
             'password' => Hash::make('562738194'),
             'remember_token' => Str::random(10),

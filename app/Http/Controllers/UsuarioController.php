@@ -88,9 +88,7 @@ class UsuarioController extends Controller
     //
     $usuario = User::findOrFail($id);
     
-    $usuario->name = $request->username;
     $usuario->email = $request->email;
-    $usuario->password = $request->password;
     $usuario->tipo = $request->tipo_usuario;
     $usuario->empleado = $request->empleado;
     $usuario->pregunta = $request->pregunta;
@@ -100,6 +98,37 @@ class UsuarioController extends Controller
 
     return response()->json($usuario, 200);
 
+  }
+
+  /**
+   * Update the specified resource in storage.
+   *
+   * @param  \Illuminate\Http\Request  $request
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function updatePassword(Request $request, $id)
+  {
+    //
+    $usuario = User::findOrFail($id);
+
+    if (!$request->newPassword) {
+      $res = [
+        "error" => "falta la nueva contraseña"
+      ];
+    } else if (Hash::check($request->password, $usuario->password)) {
+      $usuario->password = Hash::make($request->newPassword);
+      $usuario->save();
+      $res = [
+        "message" => "Se cambio la contraseña"
+      ];
+    } else {
+      $res = [
+        "error" => "No coincide la contraseña"
+      ];
+    }
+
+    return response()->json($res, 200);
   }
 
   /**

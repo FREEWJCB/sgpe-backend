@@ -39,6 +39,7 @@ Route::group([
 
 Route::prefix('estado')->group(function () {
   Route::get('/', [StateController::class, 'index'])->name('estado.index');
+  Route::get('/busqueda={busqueda}', [StateController::class, 'search'])->name('estado.search');
   Route::get('/{id}', [StateController::class, 'show'])->name('estado.show');
   Route::post('/', [StateController::class , 'store'])->name('estado.store');
   Route::put('/{id}', [StateController::class, 'update'])->name('estado.update');
@@ -47,6 +48,7 @@ Route::prefix('estado')->group(function () {
 
 Route::prefix('municipio')->group(function () {
   Route::get('/', [MunicipalityController::class, 'index'])->name('municipio.index');
+  Route::get('/busqueda={busqueda}', [MunicipalityController::class, 'search'])->name('municipio.search');
   Route::get('/{id}', [MunicipalityController::class, 'show'])->name('municipio.show');
   Route::post('/', [MunicipalityController::class , 'store'])->name('municipio.store');
   Route::put('/{id}', [MunicipalityController::class, 'update'])->name('municipio.update');
@@ -71,6 +73,7 @@ Route::prefix('seccion')->group(function () {
 
 Route::prefix('grado')->group(function () {
   Route::get('/', [GradoController::class, 'index'])->name('grado.index');
+  Route::get('/busqueda={busqueda}', [GradoController::class, 'search'])->name('grado.search');
   Route::get('/{id}', [GradoController::class, 'show'])->name('grado.show');
   Route::post('/', [GradoController::class , 'store'])->name('grado.store');
   Route::put('/{id}', [GradoController::class, 'update'])->name('grado.update');
@@ -114,6 +117,7 @@ Route::prefix('usuario')->group(function () {
   Route::get('/{id}', [UsuarioController::class, 'show'])->name('usuario.show');
   Route::post('/', [UsuarioController::class , 'store'])->name('usuario.store');
   Route::put('/{id}', [UsuarioController::class, 'update'])->name('usuario.update');
+  Route::put('/pass/{id}', [UsuarioController::class, 'updatePassword'])->name('usuario.updatePassword');
   Route::delete('/{id}', [UsuarioController::class, 'destroy'])->name('usuario.delete');
 });
 

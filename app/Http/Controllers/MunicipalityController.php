@@ -39,6 +39,27 @@ class MunicipalityController extends Controller
 
     return response()->json($cons2, 200);
     }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+        $res = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
+                    ->join('state', 'municipality.state', '=', 'state.id')
+                    ->where([
+                      ['municipality.status', '=', '1'],
+                      ['municipality.municipalitys', 'like', '%'.$busqueda.'%']
+                    ])
+                    ->orderBy('municipalitys','desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
+  }
   /**
    * Show the profile for the given user.
    *
@@ -99,7 +120,9 @@ class MunicipalityController extends Controller
   public function destroy($id)
   {
     //
-    $res = Municipality::find($id)->delete();
+    $res = Municipality::find($id);
+    $res->status = "0";
+    $res->save();
     return response()->json($res, 202);
   }
 }
