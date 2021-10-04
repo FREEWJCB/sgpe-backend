@@ -26,11 +26,30 @@ class SeccionController extends Controller
     public function index()
     {
         //
-        $cons = Seccion::join('grado', 'grado.id', '=', 'seccion.grado')->where('seccion.status', '1')->orderBy('seccion.secciones','asc');
+        $cons = Seccion::select('seccion.*', 'grado.grados')->join('grado', 'grado.id', '=', 'seccion.grado')->where('seccion.status', '1')->orderBy('seccion.secciones','asc');
         $cons2 = $cons->get();
         //$num = $cons->count();
         return response()->json($cons2, 200);
     }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = Seccion::join('grado', 'grado.id', '=', 'seccion.grado')->where([
+      ['seccion.status', '=', '1'],
+      ['seccion.secciones', 'like', '%' . $busqueda . '%']
+    ]
+    )->orderBy('seccion.id', 'desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
+  }
 
   /**
    * Show the profile for the given user.

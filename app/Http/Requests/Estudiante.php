@@ -38,7 +38,15 @@ class Estudiante extends FormRequest
       'municipio' => 'required|numeric|min:1',
       'fecha_nacimiento' => 'required|date',
       'lugar_nacimiento' => 'required|string|min:10',
-      'descripcion' => 'required|string|min:10'
+      'descripcion' => 'required|string|min:9',
+      'estatura' => 'required|numeric|min:60',
+      'peso' => 'required|numeric|min:20',
+      'talla' => 'required|string|min:1',
+      't_sangre' => 'required|string|min:1',
+      'fecha_inscrip' => 'date',
+      'estado_inscrip' => 'boolean',
+      'beca' => 'required|boolean',
+      'repite' => 'required|boolean'
     ];
   }
 
@@ -82,7 +90,25 @@ class Estudiante extends FormRequest
       'lugar_nacimiento.min' => 'El Lugar de ser minimo de 10 numeros',
       'descripcion.required' => 'Es requerida la descripcion',
       'descripcion.string' => 'La descripcion debe ser alfanumerica',
-      'descripcion.min' => 'La descripcion debe ser mayor a 10 characteres'
+      'descripcion.min' => 'La descripcion debe ser mayor a 10 characteres',
+      'estatura.required' => 'Es requerida la estatura',
+      'estatura.numeric' => 'La estatura debe ser numeros',
+      'estatura.min' => 'la estatura debe ser mayor a 60cm',
+      'peso.required' => 'Es requerida la peso',
+      'peso.numeric' => 'La peso debe ser numeros',
+      'peso.min' => 'la peso debe ser mayor a 20 kilos',
+      'talla.required' => 'Es requerida la talla',
+      'talla.string' => 'La talla debe ser letras',
+      'talla.min' => 'la talla debe ser mayor a una letra',
+      't_sangre.required' => 'Es requerida el tipo de sangre',
+      't_sangre.string' => 'el tipo de sangre deben ser letras',
+      't_sangre.min' => 'el tipo de sangre debe ser mayor a una letra',
+      'fecha_inscrip.date' => 'la fecha de inscripcion debe ser una fecha',
+      'estado_inscrip.boolean' => 'el estado de inscripcion debe ser del tipo boolean',
+      'beca.required' => 'Es requerida la beca',
+      'beca.boolean' => 'la beca debe ser del tipo boolean',
+      'repite.required' => 'si repite es requerida',
+      'repite.boolean' => 'repite debe ser del tipo boolean',
     ];
   }
 }

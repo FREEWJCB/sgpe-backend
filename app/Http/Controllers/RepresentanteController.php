@@ -32,16 +32,41 @@ class RepresentanteController extends Controller
   public function index()
   {
     //
-    $cons = Representante::select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+    $cons = Representante::select('representante.*', 'ocupacion_laboral.id as ocupacion_laboral', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
       ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
       ->join('persona', 'representante.persona', '=', 'persona.id')
       ->join('municipality', 'persona.municipality', '=', 'municipality.id')
       ->join('state', 'municipality.state', '=', 'state.id')
       ->where('representante.status', '1')->orderBy('cedula', 'asc');
     $cons2 = $cons->get();
+    $code = 200;
     //$num = $cons->count();
 
-    return response()->json($cons2, 200);
+    return response()->json($cons2, $code);
+  }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = Representante::select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+      ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
+      ->join('persona', 'representante.persona', '=', 'persona.id')
+      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+      ->join('state', 'municipality.state', '=', 'state.id')
+      ->where([
+      ['representante.status', '=', '1'],
+      ['persona.cedula', 'like', '%' . $busqueda . '%']
+    ]
+    )->orderBy('representante.id', 'desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
   }
 
   /**
@@ -52,7 +77,7 @@ class RepresentanteController extends Controller
    */
   public function show($id)
   {
-    $representante = Representante::select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+    $representante = Representante::select('representante.*', 'ocupacion_laboral.id as ocupacion_laboral', 'state.id as states', 'municipality.id as municipality', 'persona.direccion', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
       ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
       ->join('persona', 'representante.persona', '=', 'persona.id')
       ->join('municipality', 'persona.municipality', '=', 'municipality.id')

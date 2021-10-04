@@ -29,15 +29,37 @@ class UsuarioController extends Controller
   public function index()
   {
 
-    $cons = User::select('users.*', 'empleado.*', 'persona.*', 'tipo_usuario.tipo as tipo_usuario')
-      ->join('tipo_usuario', 'users.tipo', '=', 'tipo_usuario.id')
+    $cons = User::select('users.id', 'persona.nombre')
       ->join('empleado', 'users.empleado', '=', 'empleado.id')
       ->join('persona', 'empleado.persona', '=', 'persona.id')
-      ->where('users.status', '1')->orderBy('name', 'asc');
+      ->where('users.status', '1')
+      ->orderBy('users.id', 'desc');
     $cons2 = $cons->get();
     //$num = $cons->count();
 
     return response()->json($cons2, 200);
+  }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = User::select('users.id', 'persona.nombre')
+      ->join('empleado', 'users.empleado', '=', 'empleado.id')
+      ->join('persona', 'empleado.persona', '=', 'persona.id')
+      ->where([
+      ['users.status', '=', '1'],
+      ['persona.nombre', 'like', '%' . $busqueda . '%']
+    ]
+    )->orderBy('users.id', 'desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
   }
 
   /**
@@ -50,11 +72,10 @@ class UsuarioController extends Controller
   {
     //
     $usuario = User::updateOrCreate([
-      'name' => $request->username,
       'email' => $request->email,
       'password' => Hash::make($request->password),
-      'tipo' => $request->tipo_usuario,
-      'empleado' => $request->empleado,
+      'tipo' => $request->tipo,
+      'empleado' => $request->empleado_id,
       'pregunta' => $request->pregunta,
       'respuesta' => $request->respuesta
     ]);
@@ -69,10 +90,28 @@ class UsuarioController extends Controller
    */
   public function show($id)
   {
-    return response()->json(User::select('*', 'tipo_usuario.tipo as tipo_usuario')->join('tipo_usuario', 'users.tipo', '=', 'tipo_usuario.id')
+    $res = User::select('users.email', 'users.tipo', 'users.empleado as empleado_id', 'users.pregunta', 'users.respuesta')
       ->join('empleado', 'users.empleado', '=', 'empleado.id')
       ->join('persona', 'empleado.persona', '=', 'persona.id')
-      ->findOrFail($id), 202);
+      ->where([
+        ['users.status', '1'],
+        ['users.id', '=', $id]
+      ])
+    ->first();
+    if (User::find($id)) {
+      $empleado = Empleado::select('cargo.cargos as cargo', 'persona.cedula', 'persona.nombre', 'persona.apellido')
+      ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
+      ->join('persona', 'empleado.persona', '=', 'persona.id')
+      ->where('empleado.id', $res->empleado_id)
+      ->first();
+    $res->empleado = $empleado;
+      return response()->json($res, 200);
+    } else {
+      return response()->json([
+        "error" => "No se encontro el Usuario",
+        "code" => 404
+      ], 404);
+    }
     //return new StateResource(State::find($id));
   }
 
@@ -89,8 +128,8 @@ class UsuarioController extends Controller
     $usuario = User::findOrFail($id);
     
     $usuario->email = $request->email;
-    $usuario->tipo = $request->tipo_usuario;
-    $usuario->empleado = $request->empleado;
+    $usuario->tipo = $request->tipo;
+    $usuario->empleado = $request->empleado_id;
     $usuario->pregunta = $request->pregunta;
     $usuario->respuesta = $request->respuesta;
 

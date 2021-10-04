@@ -39,6 +39,29 @@ class EstudianteController extends Controller
   }
 
   /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = Estudiante::select('estudiante.*', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'municipality.municipalitys', 'state.states')
+      ->join('persona', 'estudiante.persona', '=', 'persona.id')
+      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+      ->join('state', 'municipality.state', '=', 'state.id')
+      ->where([
+      ['estudiante.status', '=', '1'],
+      ['persona.cedula', 'like', '%' . $busqueda . '%']
+    ]
+    )->orderBy('estudiante.id', 'desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
+  }
+
+  /**
    * Show the profile for the given user.
    *
    * @param  int  $id
@@ -46,7 +69,7 @@ class EstudianteController extends Controller
    */
   public function show($id)
   {
-    $estudiante = Estudiante::select('estudiante.*', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'municipality.municipalitys', 'state.states')
+    $estudiante = Estudiante::select('estudiante.*', 'persona.cedula', 'persona.nombre', 'persona.telefono', 'persona.apellido', 'persona.sex', 'persona.direccion', 'municipality.id as municipality', 'state.id as states')
       ->join('persona', 'estudiante.persona', '=', 'persona.id')
       ->join('municipality', 'persona.municipality', '=', 'municipality.id')
       ->join('state', 'municipality.state', '=', 'state.id')
@@ -82,26 +105,41 @@ class EstudianteController extends Controller
     ]);
 
     $estudiante = Estudiante::updateOrCreate([
+      'persona' => $persona->id,
       'fecha_nacimiento' => $request->fecha_nacimiento,
       'lugar_nacimiento' => $request->lugar_nacimiento,
       'descripcion' => $request->descripcion,
-      'persona' => $persona->id
+      'estatura' => $request->estatura,
+      'peso' => $request->peso,
+      'talla' => $request->talla,
+      't_sangre' => $request->t_sangre,
+      'fecha_inscrip' => $request->fecha_inscrip,
+      'estado_inscrip' => $request->estado_inscrip,
+      'beca' => $request->beca,
+      'repite' => $request->repite
     ]);
 
     return response()->json([
-        'id' => $estudiante->id,
-        'cedula' => $persona->cedula,
-        'nombre' => $persona->nombre, 
-        'apellido' => $persona->apellido,
-        'sex' => $persona->sex,
-        'telefono' => $persona->telefono,
-        'direccion' => $persona->direccion,
-        'municipio' => $persona->municipio,
-        'fecha_nacimiento' => $estudiante->fecha_nacimiento,
-        'lugar_nacimiento' => $estudiante->lugar_nacimiento,
-        'descripcion' => $estudiante->descripcion
+      'id' => $estudiante->id,
+      'cedula' => $persona->cedula,
+      'nombre' => $persona->nombre,
+      'apellido' => $persona->apellido,
+      'sex' => $persona->sex,
+      'telefono' => $persona->telefono,
+      'direccion' => $persona->direccion,
+      'municipio' => $persona->municipio,
+      'fecha_nacimiento' => $estudiante->fecha_nacimiento,
+      'lugar_nacimiento' => $estudiante->lugar_nacimiento,
+      'descripcion' => $estudiante->descripcion,
+      'estatura' => $estudiante->estatura,
+      'peso' => $estudiante->peso,
+      'talla' => $estudiante->talla,
+      't_sangre' => $estudiante->t_sangre,
+      'fecha_inscrip' => $estudiante->fecha_inscrip,
+      'estado_inscrip' => $estudiante->estado_inscrip,
+      'beca' => $estudiante->beca,
+      'repite' => $estudiante->repite
     ], 202);
-
   }
 
   /**
@@ -111,7 +149,7 @@ class EstudianteController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-  public function update(Validation $request,$id)
+  public function update(Validation $request, $id)
   {
     //
     $estudiante = Estudiante::find($id);
@@ -124,23 +162,39 @@ class EstudianteController extends Controller
     $persona->direccion = $request->direccion;
     $persona->municipality = $request->municipio;
     $estudiante->fecha_nacimiento = $request->fecha_nacimiento;
-    $estudiante->lugar_nacimiento = $request->lugar_nacimiento;
+    $estudiante-> lugar_nacimiento = $request->lugar_nacimiento;
     $estudiante->descripcion = $request->descripcion;
+    $estudiante->estatura = $request->estatura;
+    $estudiante->peso = $request->peso;
+    $estudiante->talla = $request->talla;
+    $estudiante->t_sangre = $request->t_sangre;
+    $estudiante->fecha_inscrip = $request->fecha_inscrip;
+    $estudiante->estado_inscrip = $request->estado_inscrip;
+    $estudiante->beca = $request->beca;
+    $estudiante->repite = $request->repite;
     $persona->save();
     $estudiante->save();
 
     return response()->json([
-        'id' => $estudiante->id,
-        'cedula' => $persona->cedula,
-        'nombre' => $persona->nombre, 
-        'apellido' => $persona->apellido,
-        'sex' => $persona->sex,
-        'telefono' => $persona->telefono,
-        'direccion' => $persona->direccion,
-        'municipio' => $persona->municipality,
-        'fecha_nacimiento' => $estudiante->fecha_nacimiento,
-        'lugar_nacimiento' => $estudiante->lugar_nacimiento,
-        'descripcion' => $estudiante->descripcion
+      'id' => $estudiante->id,
+      'cedula' => $persona->cedula,
+      'nombre' => $persona->nombre,
+      'apellido' => $persona->apellido,
+      'sex' => $persona->sex,
+      'telefono' => $persona->telefono,
+      'direccion' => $persona->direccion,
+      'municipio' => $persona->municipality,
+      'fecha_nacimiento' => $estudiante->fecha_nacimiento,
+      'lugar_nacimiento' => $estudiante->lugar_nacimiento,
+      'descripcion' => $estudiante->descripcion,
+      'estatura' => $estudiante->estatura,
+      'peso' => $estudiante->peso,
+      'talla' => $estudiante->talla,
+      't_sangre' => $estudiante->t_sangre,
+      'fecha_inscrip' => $estudiante->fecha_inscrip,
+      'estado_inscrip' => $estudiante->estado_inscrip,
+      'beca' => $estudiante->beca,
+      'repite' => $estudiante->repite
     ], 200);
   }
 

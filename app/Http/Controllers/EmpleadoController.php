@@ -41,6 +41,30 @@ class EmpleadoController extends Controller
   }
 
   /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+        $res = Empleado::select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+      ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
+      ->join('persona', 'empleado.persona', '=', 'persona.id')
+      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+      ->join('state', 'municipality.state', '=', 'state.id')
+                    ->where([
+                      ['municipality.status', '=', '1'],
+                      ['municipality.municipalitys', 'like', '%'.$busqueda.'%']
+                    ])
+                    ->orderBy('municipalitys','desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
+  }
+
+  /**
    * Show the profile for the given user.
    *
    * @param  int  $id
@@ -48,7 +72,7 @@ class EmpleadoController extends Controller
    */
   public function show($id)
   {
-    $empleado = Empleado::select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+    $empleado = Empleado::select('empleado.*', 'cargo.cargos', 'state.id as states', 'municipality.id as municipality', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono', 'persona.direccion')
       ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
       ->join('persona', 'empleado.persona', '=', 'persona.id')
       ->join('municipality', 'persona.municipality', '=', 'municipality.id')
@@ -86,6 +110,10 @@ class EmpleadoController extends Controller
 
     $empleado = Empleado::create([
       'cargo' => $request->cargo,
+      'anio_ing_inst' => $request->anio_ing_inst,
+      'anio_ing_mppe' => $request->anio_ing_mppe,
+      'tit_pregrad' => $request->tit_pregrad,
+      'tit_postgrad' => $request->tit_postgrad,
       'persona' => $persona->id
     ]);
 
@@ -111,7 +139,11 @@ class EmpleadoController extends Controller
     $persona->telefono = $request->telefono;
     $persona->direccion = $request->direccion;
     $persona->municipality = $request->municipio;
-    $empleado->cargo = $request->cargo;
+    $empleado-> cargo = $request->cargo;
+    $empleado->anio_ing_inst = $request->anio_ing_inst;
+    $empleado->anio_ing_mppe = $request->anio_ing_mppe;
+    $empleado->tit_pregrad = $request->tit_pregrad;
+    $empleado->tit_postgrad = $request->tit_postgrad;
     $persona->save();
     $empleado->save();
 
@@ -125,6 +157,10 @@ class EmpleadoController extends Controller
       'direccion' => $persona->direccion,
       'municipio' => $persona->municipality,
       'email' => $empleado->email,
+      'anio_ing_inst' => $empleado->anio_ing_inst,
+      'anio_ing_mppe' => $empleado->anio_ing_mppe,
+      'tit_pregrad' => $empleado->tit_pregrad,
+      'tit_postgrad' => $empleado->tit_postgrad,
       'cargo' => $empleado->cargo
     ], 200);
   }

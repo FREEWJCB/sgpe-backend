@@ -26,7 +26,8 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'pregunta',
-        'empleado'
+        'empleado',
+        'tipo'
     ];
 
     /**
@@ -39,7 +40,7 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
-        'respuesta'
+        //'respuesta'
     ];
 
     /**

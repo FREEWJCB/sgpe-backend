@@ -14,10 +14,10 @@ class TipoUsuarioSeeder extends Seeder
      */
     public function run()
     {
-      DB::table('tipo_usuario')->insert(
+      DB::table('tipo_usuario')->insert([
         [ 'tipo' => 'admin' ],
         [ 'tipo' => 'primaria' ],
         [ 'tipo' => 'secundaria' ]
-      );
+      ]);
     }
 }

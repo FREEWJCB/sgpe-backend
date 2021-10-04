@@ -33,6 +33,25 @@ class MateriaController extends Controller
   }
 
   /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = Materia::where([
+      ['status', '=', '1'],
+      ['nombre', 'like', '%'.$busqueda.'%']
+    ])
+      ->orderBy('nombre', 'asc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
+  }
+
+  /**
    * Store a newly created resource in storage.
    *
    * @param  App\Http\Request\Materia  $request

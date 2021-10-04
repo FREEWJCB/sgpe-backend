@@ -28,10 +28,29 @@ class CargoController extends Controller
   public function index()
   {
     //
-    $cons = Cargo::where('status', '1')->orderBy('cargos', 'asc');
+    $cons = Cargo::where('status', '1')->orderBy('cargos', 'desc');
     $cons2 = $cons->get();
     //$num = $cons->count();
     return response()->json($cons2,200);
+  }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param string busqueda
+   * @return \Illuminate\Http\Response
+   */
+  public function search($busqueda)
+  {
+    //
+    $res = Cargo::where([
+      ['status', '=', '1'],
+      ['cargos', 'like', '%' . $busqueda . '%']
+    ]
+    )->orderBy('id', 'desc');
+    $res = $res->get();
+    //$num = $cons->count();
+    return response()->json($res, 200);
   }
 
   /**

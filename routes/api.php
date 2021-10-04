@@ -15,6 +15,7 @@ use App\Http\Controllers\Ocupacion_LaboralController;
 use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\ComboboxController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\Periodo_EscolarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,7 @@ Route::prefix('municipio')->group(function () {
 
 Route::prefix('cargo')->group(function () {
   Route::get('/', [CargoController::class, 'index'])->name('cargo.index');
+  Route::get('/busqueda={busqueda}', [CargoController::class, 'search'])->name('cargo.search');
   Route::get('/{id}', [CargoController::class, 'show'])->name('cargo.show');
   Route::post('/', [CargoController::class , 'store'])->name('cargo.store');
   Route::put('/{id}', [CargoController::class, 'update'])->name('cargo.update');
@@ -65,6 +67,7 @@ Route::prefix('cargo')->group(function () {
 
 Route::prefix('seccion')->group(function () {
   Route::get('/', [SeccionController::class, 'index'])->name('seccion.index');
+  Route::get('/busqueda={busqueda}', [SeccionController::class, 'search'])->name('seccion.search');
   Route::get('/{id}', [SeccionController::class, 'show'])->name('seccion.show');
   Route::post('/', [SeccionController::class , 'store'])->name('seccion.store');
   Route::put('/{id}', [SeccionController::class, 'update'])->name('seccion.update');
@@ -82,6 +85,7 @@ Route::prefix('grado')->group(function () {
 
 Route::prefix('ocupacionlaboral')->group(function () {
   Route::get('/', [Ocupacion_LaboralController::class, 'index'])->name('ocupacionlaboral.index');
+  Route::get('/busqueda={busqueda}', [Ocupacion_LaboralController::class, 'search'])->name('ocupacionlaboral.search');
   Route::get('/{id}', [Ocupacion_LaboralController::class, 'show'])->name('ocupacionlaboral.show');
   Route::post('/', [Ocupacion_LaboralController::class , 'store'])->name('ocupacionlaboral.store');
   Route::put('/{id}', [Ocupacion_LaboralController::class, 'update'])->name('ocupacionlaboral.update');
@@ -90,6 +94,7 @@ Route::prefix('ocupacionlaboral')->group(function () {
 
 Route::prefix('estudiante')->group(function () {
   Route::get('/', [EstudianteController::class, 'index'])->name('estudiante.index');
+  Route::get('/busqueda={busqueda}', [EstudianteController::class, 'search'])->name('estudiante.search');
   Route::get('/{id}', [EstudianteController::class, 'show'])->name('estudiante.show');
   Route::post('/', [EstudianteController::class , 'store'])->name('estudiante.store');
   Route::put('/{id}', [EstudianteController::class, 'update'])->name('estudiante.update');
@@ -98,6 +103,7 @@ Route::prefix('estudiante')->group(function () {
 
 Route::prefix('empleado')->group(function () {
   Route::get('/', [EmpleadoController::class, 'index'])->name('empleado.index');
+  Route::get('/busqueda={busqueda}', [EmpleadoController::class, 'search'])->name('empleado.search');
   Route::get('/{id}', [EmpleadoController::class, 'show'])->name('empleado.show');
   Route::post('/', [EmpleadoController::class , 'store'])->name('empleado.store');
   Route::put('/{id}', [EmpleadoController::class, 'update'])->name('empleado.update');
@@ -106,6 +112,7 @@ Route::prefix('empleado')->group(function () {
 
 Route::prefix('representante')->group(function () {
   Route::get('/', [RepresentanteController::class, 'index'])->name('representante.index');
+  Route::get('/busqueda={busqueda}', [RepresentanteController::class, 'search'])->name('representante.search');
   Route::get('/{id}', [RepresentanteController::class, 'show'])->name('representante.show');
   Route::post('/', [RepresentanteController::class , 'store'])->name('representante.store');
   Route::put('/{id}', [RepresentanteController::class, 'update'])->name('representante.update');
@@ -114,6 +121,7 @@ Route::prefix('representante')->group(function () {
 
 Route::prefix('usuario')->group(function () {
   Route::get('/', [UsuarioController::class, 'index'])->name('usuario.index');
+  Route::get('/busqueda={busqueda}', [UsuarioController::class, 'search'])->name('usuario.search');
   Route::get('/{id}', [UsuarioController::class, 'show'])->name('usuario.show');
   Route::post('/', [UsuarioController::class , 'store'])->name('usuario.store');
   Route::put('/{id}', [UsuarioController::class, 'update'])->name('usuario.update');
@@ -123,10 +131,20 @@ Route::prefix('usuario')->group(function () {
 
 Route::prefix('materia')->group(function () {
   Route::get('/', [MateriaController::class, 'index'])->name('materia.index');
+  Route::get('/busqueda={busqueda}', [MateriaController::class, 'search'])->name('materia.search');
   Route::get('/{id}', [MateriaController::class, 'show'])->name('materia.show');
   Route::post('/', [MateriaController::class , 'store'])->name('materia.store');
   Route::put('/{id}', [MateriaController::class, 'update'])->name('materia.update');
   Route::delete('/{id}', [MateriaController::class, 'destroy'])->name('materia.delete');
+});
+
+Route::prefix('periodoescolar')->group(function () {
+  Route::get('/', [Periodo_EscolarController::class, 'index'])->name('periodoescolar.index');
+  Route::get('/busqueda={busqueda}', [Periodo_EscolarController::class, 'search'])->name('periodoescolar.search');
+  Route::get('/{id}', [Periodo_EscolarController::class, 'show'])->name('periodoescolar.show');
+  Route::post('/', [Periodo_EscolarController::class , 'store'])->name('periodoescolar.store');
+  Route::put('/{id}', [Periodo_EscolarController::class, 'update'])->name('periodoescolar.update');
+  Route::delete('/{id}', [Periodo_EscolarController::class, 'destroy'])->name('periodoescolar.delete');
 });
 
 Route::prefix('cbbx')->group(function () {
@@ -134,6 +152,8 @@ Route::prefix('cbbx')->group(function () {
   Route::get('/municipio/{id}', [ComboboxController::class, 'municipio'])->name('cbbx.municipio');
   Route::get('/cargo', [ComboboxController::class , 'cargo'])->name('cbbx.cargo');
   Route::get('/ocupacionlaboral', [ComboboxController::class, 'ocupacionlaboral'])->name('cbbx.ocupacionlaboral');
+  Route::get('/grado', [ComboboxController::class, 'grado'])->name( 'cbbx.grado');
+  Route::get('/empleado', [ComboboxController::class, 'empleado'])->name( 'cbbx.empleado');
 });
 
 Route::get('{route}', function ($route, Request $request) {
@@ -142,5 +162,5 @@ Route::get('{route}', function ($route, Request $request) {
     "url" => $route,
     "data" => $request->headers->all(),
     "ajax" => $request->ajax()
-  ],404);
+  ], 404);
 })->where('route', '[A-za-z0-9*]+');

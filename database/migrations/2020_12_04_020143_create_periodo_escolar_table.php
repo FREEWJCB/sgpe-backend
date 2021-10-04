@@ -15,7 +15,8 @@ class CreatePeriodoEscolarTable extends Migration
     {
         Schema::create('periodo_escolar', function (Blueprint $table) {
             $table->id();
-            $table->decimal('anio');
+            $table->decimal('anio_ini', 4, 0);
+            $table->decimal('anio_fin', 4, 0);
             $table->decimal('status',1,0)->default(1);
             $table->timestamps();
         });

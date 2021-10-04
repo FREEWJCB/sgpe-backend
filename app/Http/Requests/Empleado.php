@@ -36,7 +36,11 @@ class Empleado extends FormRequest
       'telefono' => 'required|string|min:11|max:12',
       'direccion' => 'required|string|min:10|max:50',
       'municipio' => 'required|numeric|min:1',
-      'cargo' => 'required|numeric|min:1'
+      'cargo' => 'required|numeric|min:1',
+      'anio_ing_inst' => 'required|date',
+      'anio_ing_mppe' => 'required|date',
+      'tit_pregrad' => 'required|string|min:5',
+      'tit_postgrad' => 'required|string|min:5'
     ];
   }
 
@@ -76,7 +80,17 @@ class Empleado extends FormRequest
       'municipio.min' => 'El municipio de ser minimo de 1 numeros',
       'cargo.required' => 'Debe Seleccionar un cargo',
       'cargo.numeric' => 'Debe Seleccionar un cargo',
-      'cargo.min' => 'Debe Seleccionar un cargo'
+      'cargo.min' => 'Debe Seleccionar un cargo',
+      'anio_ing_inst.required' => 'Debe colocar la fecha de ingreso a la institución',
+      'anio_ing_inst.date' => 'El año de ingreso a la institución debe ser del tipo date',
+      'anio_ing_mppe.required' => 'Debe colocar la fecha de ingreso al Ministerio del Poder Popular para la Educación',
+      'anio_ing_mppe.date' => 'La fecha de ingreso al Ministerio del Poder Popular para la Educación debe ser del tipo date',
+      'tit_pregrad.required' => 'Debe ingresar el titulo de pregrado',
+      'tit_pregrad.string' => 'El titulo de pregrado debe ser solo letras',
+      'tit_pregrad.min' => 'El titulo de pregrado debe ser minimo de 5 letras',
+      'tit_postgrad.required' => 'Debe ingresar el titulo de Postgrado',
+      'tit_postgrad.string' => 'El titulo de postgrado debe ser solo letras',
+      'tit_postgrad.min' => 'El titulo de Postgrado debe ser minimo de 5 letras',
     ];
   }
 

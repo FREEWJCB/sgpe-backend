@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Cargo;
 use App\Models\State;
+use App\Models\Grado;
 use App\Models\Municipality;
 use App\Models\Ocupacion_laboral;
+use App\Models\Empleado;
 
 class ComboboxController extends Controller
 {
@@ -90,6 +92,47 @@ class ComboboxController extends Controller
     } else {
       $res = [
         "message" => "no hay ocupaciones laborales registradas"
+      ];
+        $statusCode = 404;
+    }
+
+    return response()->json($res, $statusCode);
+  }
+  
+  //
+  public function grado()
+  {
+    $res = Grado::select('id', 'grados')->where('status', 1);
+    $count = $res->count();
+
+    if($count >= 1){
+      $res = $res->get();
+        $statusCode = 200;
+    } else {
+      $res = [
+        "message" => "no hay grados registrados"
+      ];
+        $statusCode = 404;
+    }
+
+    return response()->json($res, $statusCode);
+  }
+  
+  //
+  public function empleado()
+  {
+    $res = Empleado::select('empleado.id', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'cargo.cargos as cargo')
+      ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
+      ->join('persona', 'empleado.persona', '=', 'persona.id')
+      ->where('empleado.status', 1);
+    $count = $res->count();
+
+    if($count >= 1){
+      $res = $res->get();
+        $statusCode = 200;
+    } else {
+      $res = [
+        "message" => "no hay empleados registrados"
       ];
         $statusCode = 404;
     }
