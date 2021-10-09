@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotasTable extends Migration
+class CreateAsistenciaEmpleadoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateNotasTable extends Migration
      */
     public function up()
     {
-        Schema::create('notas', function (Blueprint $table) {
+        Schema::create('asistencia_empleado', function (Blueprint $table) {
             $table->id();
-            $table->decimal('valor',2);
+            $table->unsignedBigInteger('asistencia');
+            $table->unsignedBigInteger('empleado');
             $table->decimal('status',1,0)->default(1);
+            $table->foreign('asistencia')->references('id')->on('asistencia');
+            $table->foreign('empleado')->references('id')->on('empleado');
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ class CreateNotasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notas');
+        Schema::dropIfExists('asistencia_empleado');
     }
 }

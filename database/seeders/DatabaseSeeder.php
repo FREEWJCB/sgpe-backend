@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
         EmpleadoSeeder::class,
         TipoUsuarioSeeder::class,
         UserSeeder::class,
-        LapsoSeeder::class
+        LapsoSeeder::class,
+        ParentescosSeeder::class
     ]);
     }
 }

@@ -13,11 +13,11 @@ class LapsoSeeder extends Seeder
      * @return void
      */
     public function run()
-    {
-      DB::table("lapso")->insert(
+  {
+    DB::table("lapso")->insert([
         ["numero" => "1"],
         ["numero" => "2"],
         ["numero" => "3"],
-      );
-    }
+    ]);
+  }
 }

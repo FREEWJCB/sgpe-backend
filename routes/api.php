@@ -16,6 +16,7 @@ use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\ComboboxController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Periodo_EscolarController;
+use App\Http\Controllers\InscripcionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -153,7 +154,23 @@ Route::prefix('cbbx')->group(function () {
   Route::get('/cargo', [ComboboxController::class , 'cargo'])->name('cbbx.cargo');
   Route::get('/ocupacionlaboral', [ComboboxController::class, 'ocupacionlaboral'])->name('cbbx.ocupacionlaboral');
   Route::get('/grado', [ComboboxController::class, 'grado'])->name( 'cbbx.grado');
+  Route::get('/seccion/{id}', [ComboboxController::class, 'seccion'])->name( 'cbbx.seccion');
   Route::get('/empleado', [ComboboxController::class, 'empleado'])->name( 'cbbx.empleado');
+  Route::get('/periodoescolar', [ComboboxController::class, 'periodoescolar'])->name( 'cbbx.periodoescolar');
+  Route::get('/parentescos', [ComboboxController::class, 'parentescos'])->name( 'cbbx.parentescos');
+});
+
+/* Processos */
+
+Route::prefix('inscripcion')->group(function () {
+  Route::get('/', [InscripcionController::class, 'index'])->name('inscripcion.index');
+  Route::get('/busqueda={busqueda}', [InscripcionController::class, 'search'])->name('inscripcion.search');
+  Route::get('/estudiante/{cedula}', [InscripcionController::class, 'estudiante'])->name('inscripcion.estudiante');
+  Route::get('/representante/{cedula}', [InscripcionController::class, 'representante'])->name('inscripcion.representante');
+  Route::get('/{id}', [InscripcionController::class, 'show'])->name('inscripcion.show');
+  Route::post('/', [InscripcionController::class , 'store'])->name('inscripcion.store');
+  Route::put('/{id}', [InscripcionController::class, 'update'])->name('inscripcion.update');
+  Route::delete('/{id}', [InscripcionController::class, 'destroy'])->name('inscripcion.delete');
 });
 
 Route::get('{route}', function ($route, Request $request) {

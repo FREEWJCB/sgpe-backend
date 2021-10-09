@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Cargo;
 use App\Models\State;
 use App\Models\Grado;
+use App\Models\Seccion;
 use App\Models\Municipality;
 use App\Models\Ocupacion_laboral;
 use App\Models\Empleado;
+use App\Models\Periodo_escolar;
+use Illuminate\Support\Facades\DB;
 
 class ComboboxController extends Controller
 {
@@ -135,6 +138,67 @@ class ComboboxController extends Controller
         "message" => "no hay empleados registrados"
       ];
         $statusCode = 404;
+    }
+
+    return response()->json($res, $statusCode);
+  }
+
+  //
+  public function seccion($id)
+  {
+    $res = Seccion::select('id', 'secciones')
+      ->where('status', 1)
+      ->where('grado', $id);
+
+    $count = $res->count();
+    if ($count >= 1) {
+          $res = $res->get();
+          $statusCode = 200;
+    } else {
+      $res = [
+        "message" => "no hay secciones registrados"
+      ];
+      $statusCode = 404;
+    }
+
+    return response()->json($res, $statusCode);
+  }
+
+  //
+  public function periodoescolar()
+  {
+    $res = Periodo_escolar::select('id', 'anio_ini', 'anio_fin')
+      ->where('status', 1);
+
+    $count = $res->count();
+    if ($count >= 1) {
+          $res = $res->get();
+          $statusCode = 200;
+    } else {
+      $res = [
+        "message" => "no hay periodo escolares registrados"
+      ];
+      $statusCode = 404;
+    }
+
+    return response()->json($res, $statusCode);
+  }
+
+  //
+  public function parentescos()
+  {
+    $res = DB::table('parentesco')->select('id', 'parentescos')
+      ->where('status', 1);
+
+    $count = $res->count();
+    if ($count >= 1) {
+          $res = $res->get();
+          $statusCode = 200;
+    } else {
+      $res = [
+        "message" => "no hay periodo escolares registrados"
+      ];
+      $statusCode = 404;
     }
 
     return response()->json($res, $statusCode);
