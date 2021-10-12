@@ -16,8 +16,8 @@ class CreateAsistenciaTable extends Migration
         Schema::create('asistencia', function (Blueprint $table) {
             $table->id();
             $table->date('fecha');
-            $table->boolean('asistio');
-            $table->string('motivo',150);
+            $table->boolean('asistio')->default(false);
+            $table->string('motivo',150)->nullable();
             $table->decimal('status',1,0)->default(1);
             $table->timestamps();
         });

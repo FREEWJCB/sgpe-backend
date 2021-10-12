@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\DB;
 class InscripcionController extends Controller
 {
   /**
+   * Create a new AuthController
+   *
+   * @return void
+   * */
+  public function __construct()
+  {
+    $this->middleware('auth:api');
+  }
+
+  /**
    * Display a listing of the resource.
    *
    * @return \Illuminate\Http\Response
@@ -213,7 +223,7 @@ class InscripcionController extends Controller
     //
     $inscripcion = DB::table('grupo_estudiante')->where('id', $id)->first();
 
-    DB::table('grupo_estudiante')-> where('id', $id)
+    DB::table('grupo_estudiante')->where('id', $id)
       ->update(['estudiante_id' => $request->estudiante_id]);
 
     DB::table('grupo')->where('id', $inscripcion->grupo_id)
@@ -226,7 +236,7 @@ class InscripcionController extends Controller
         "representante" => $request->representante_id
       ]);
 
-    DB::table( 'empleado_grupo')->where('grupo_id', $inscripcion->grupo_id)
+    DB::table('empleado_grupo')->where('grupo_id', $inscripcion->grupo_id)
       ->update(["empleado" => $request->empleado_id]);
 
     return response()->json([

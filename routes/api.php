@@ -17,6 +17,7 @@ use App\Http\Controllers\ComboboxController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Periodo_EscolarController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\AsistenciaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -171,6 +172,16 @@ Route::prefix('inscripcion')->group(function () {
   Route::post('/', [InscripcionController::class , 'store'])->name('inscripcion.store');
   Route::put('/{id}', [InscripcionController::class, 'update'])->name('inscripcion.update');
   Route::delete('/{id}', [InscripcionController::class, 'destroy'])->name('inscripcion.delete');
+});
+
+Route::prefix('asistencia')->group(function () {
+  Route::get('/start={start}&end={end}&month={month}&year={year}', [AsistenciaController::class, 'index'])->name('asistencia.index');
+  Route::get('/empleado/{edit}', [AsistenciaController::class, 'empleado'])->name('asistencia.empleado');
+  Route::get('/{id}', [AsistenciaController::class, 'show'])->name('asistencia.show');
+  Route::get('/allday/{fecha}', [AsistenciaController::class, 'showAllDay'])->name('asistencia.showAllDay');
+  Route::post('/', [AsistenciaController::class , 'store'])->name('asistencia.store');
+  Route::put('/{id}', [AsistenciaController::class, 'update'])->name('asistencia.update');
+  Route::delete('/{id}', [AsistenciaController::class, 'destroy'])->name('asistencia.delete');
 });
 
 Route::get('{route}', function ($route, Request $request) {
