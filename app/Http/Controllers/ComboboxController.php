@@ -9,6 +9,7 @@ use App\Models\Seccion;
 use App\Models\Municipality;
 use App\Models\Ocupacion_laboral;
 use App\Models\Empleado;
+use App\Models\Materia;
 use App\Models\Periodo_escolar;
 use Illuminate\Support\Facades\DB;
 
@@ -197,6 +198,26 @@ class ComboboxController extends Controller
     } else {
       $res = [
         "message" => "no hay periodo escolares registrados"
+      ];
+      $statusCode = 404;
+    }
+
+    return response()->json($res, $statusCode);
+  }
+
+  //
+  public function materia()
+  {
+    $res = Materia::select('id', 'nombre')
+      ->where('status', 1);
+
+    $count = $res->count();
+    if ($count >= 1) {
+          $res = $res->get();
+          $statusCode = 200;
+    } else {
+      $res = [
+        "message" => "no hay materias registradas"
       ];
       $statusCode = 404;
     }

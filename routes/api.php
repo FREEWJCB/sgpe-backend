@@ -18,6 +18,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Periodo_EscolarController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\AsistenciaController;
+use App\Http\Controllers\NotasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -159,6 +160,7 @@ Route::prefix('cbbx')->group(function () {
   Route::get('/empleado', [ComboboxController::class, 'empleado'])->name( 'cbbx.empleado');
   Route::get('/periodoescolar', [ComboboxController::class, 'periodoescolar'])->name( 'cbbx.periodoescolar');
   Route::get('/parentescos', [ComboboxController::class, 'parentescos'])->name( 'cbbx.parentescos');
+  Route::get('/materia', [ComboboxController::class, 'materia'])->name( 'cbbx.materia');
 });
 
 /* Processos */
@@ -182,6 +184,20 @@ Route::prefix('asistencia')->group(function () {
   Route::post('/', [AsistenciaController::class , 'store'])->name('asistencia.store');
   Route::put('/{id}', [AsistenciaController::class, 'update'])->name('asistencia.update');
   Route::delete('/{id}', [AsistenciaController::class, 'destroy'])->name('asistencia.delete');
+});
+
+Route::prefix('notas')->group(function () {
+  Route::get('/', [NotasController::class, 'index'])->name('notas.index');
+  Route::get('/periodo={periodo}&seccion={seccion}', [NotasController::class, 'search'])->name('notas.search');
+  Route::get('/{id}', [NotasController::class, 'show'])->name('notas.show');
+  Route::get('/notas/{id}', [NotasController::class, 'notas'])->name('notas.notas');
+  Route::get('/seccion/{grado}', [NotasController::class, 'seccion'])->name('notas.seccion');
+  Route::get('/estudiante/{grupo}', [NotasController::class, 'estudiante'])->name('notas.estudiante');
+  Route::post('/', [NotasController::class , 'store'])->name('notas.store');
+  Route::post('/valor', [NotasController::class , 'valor'])->name('notas.valor');
+  Route::put('/{id}', [NotasController::class, 'update'])->name('notas.update');
+  Route::put('/uptadenotas/{id}', [NotasController::class, 'updateNotasEstudiante'])->name('notas.update');
+  Route::delete('/{id}', [NotasController::class, 'destroy'])->name('notas.delete');
 });
 
 Route::get('{route}', function ($route, Request $request) {

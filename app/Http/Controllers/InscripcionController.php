@@ -101,7 +101,7 @@ class InscripcionController extends Controller
   public function store(Request $request)
   {
     //
-    $inscripcion = Inscripcion::updateOrCreate([
+    $inscripcion = Inscripcion::firstOrCreate([
       'seccion' => $request->seccion,
       'periodo_escolar' => $request->periodoEscolar
     ]);
