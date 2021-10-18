@@ -190,9 +190,9 @@ Route::prefix('notas')->group(function () {
   Route::get('/', [NotasController::class, 'index'])->name('notas.index');
   Route::get('/periodo={periodo}&seccion={seccion}', [NotasController::class, 'search'])->name('notas.search');
   Route::get('/{id}', [NotasController::class, 'show'])->name('notas.show');
-  Route::get('/notas/{id}', [NotasController::class, 'notas'])->name('notas.notas');
+  Route::get('/notas/{id}/{materia}', [NotasController::class, 'notas'])->name('notas.notas');
   Route::get('/seccion/{grado}', [NotasController::class, 'seccion'])->name('notas.seccion');
-  Route::get('/estudiante/{grupo}', [NotasController::class, 'estudiante'])->name('notas.estudiante');
+  Route::get('/estudiante/{id}/{materia}', [NotasController::class, 'estudiante'])->name('notas.estudiante');
   Route::post('/', [NotasController::class , 'store'])->name('notas.store');
   Route::post('/valor', [NotasController::class , 'valor'])->name('notas.valor');
   Route::put('/{id}', [NotasController::class, 'update'])->name('notas.update');

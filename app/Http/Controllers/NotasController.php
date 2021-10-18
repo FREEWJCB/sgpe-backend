@@ -20,7 +20,7 @@ class NotasController extends Controller
   {
     //
     $res = DB::table('materia_grupo')
-      ->select('materia.nombre as materia', 'seccion.secciones', 'grado.grados', 'periodo_escolar.anio_ini', 'periodo_escolar.anio_fin', 'materia_grupo.id')
+      ->select('materia.nombre as materia', 'materia.id as materia_id', 'seccion.secciones', 'grado.grados', 'periodo_escolar.anio_ini', 'periodo_escolar.anio_fin', 'materia_grupo.id')
       ->join('materia', 'materia_grupo.materia', '=', 'materia.id')
       ->join('grupo', 'grupo.id', '=', 'materia_grupo.grupo')
       ->join('seccion', 'grupo.seccion', '=', 'seccion.id')
@@ -137,15 +137,16 @@ class NotasController extends Controller
   {
     //
     foreach ($request->notas as $nota) {
-      $result = Notas::firstOrCreate([
+      $result = Notas::create([
         "valor" => $nota['valor'],
         "lapso" => $nota['lapso']
       ]);
 
       DB::table('notas_estudiante')
-        ->insert(
-          ["notas" => $result->id, "estudiante" => $nota['estudiante_id']]
-        );
+        ->insert(["notas" => $result->id, "estudiante" => $nota['estudiante_id'] ]);
+
+      DB::table('materia_notas')
+        ->insert([ "notas" => $result->id, "materia" => $nota['materia'] ]);
     }
 
     $res = [
@@ -200,7 +201,7 @@ class NotasController extends Controller
   {
     //
     $res = DB::table('materia_grupo')
-      ->select('materia.id as materia', 'seccion.id as seccion', 'grado.id as grado', 'periodo_escolar.id as periodo_escolar', 'materia_grupo.id', 'materia_empleado as empleado_id')
+      ->select('materia.id as materia', 'seccion.id as seccion', 'grado.id as grado', 'periodo_escolar.id as periodo_escolar', 'materia_grupo.id', 'materia_empleado.empleado as empleado_id')
       ->join('grupo', 'grupo.id', '=', 'materia_grupo.grupo')
       ->join('materia', 'materia_grupo.materia', '=', 'materia.id')
       ->join('seccion', 'grupo.seccion', '=', 'seccion.id')
@@ -218,31 +219,48 @@ class NotasController extends Controller
    * Display the specified resource.
    *
    * @param  int  $id
+   * @param  int  $materia
    * @return \Illuminate\Http\Response
    */
-  public function notas($id)
+  public function notas($id, $materia)
   {
     //
     $res = DB::table('grupo')
-      ->select('persona.nombre', 'persona.apellido', 'estudiante.id')
+      ->select('persona.nombre', 'persona.apellido', 'estudiante.id', 'materia.id as materia')
       ->join('materia_grupo', 'materia_grupo.grupo', '=', 'grupo.id')
-      ->join('materia', 'materia_grupo.grupo', '=', 'grupo.id')
+      //->join('materia', 'materia_grupo.grupo', '=', 'grupo.id')
+      ->join('materia', 'materia_grupo.materia', '=', 'materia.id')
       ->join('grupo_estudiante', 'grupo_estudiante.grupo_id', '=', 'grupo.id')
       ->join('estudiante', 'grupo_estudiante.estudiante_id', '=', 'estudiante.id')
       ->join('persona', 'estudiante.persona', '=', 'persona.id')
-      ->where('materia_grupo.id', $id);
+      ->where('materia_grupo.id', $id)
+      ->where('materia_grupo.materia', $materia);
 
     $count = $res->count();
 
     $res = $res->get();
 
+    $res2 = DB::table('grupo')
+      ->selectRaw("seccion.secciones as seccion, grado.grados as grado, concat(periodo_escolar.anio_ini, '-', periodo_escolar.anio_fin) as periodo_escolar, materia.nombre as materia, (select concat(persona.nombre, ' ', persona.apellido) from persona where persona.id = empleado.id) as empleado")
+      ->join('materia_grupo', 'materia_grupo.grupo', '=', 'grupo.id')
+      ->join('materia', 'materia_grupo.materia', '=', 'materia.id')
+      ->join('seccion', 'grupo.seccion', '=', 'seccion.id')
+      ->join('periodo_escolar', 'grupo.periodo_escolar', '=', 'periodo_escolar.id')
+      ->join('grado', 'seccion.grado', '=', 'grado.id')
+      ->join('materia_empleado', 'materia_empleado.materia', '=', 'materia.id')
+      ->join('empleado', 'empleado.id', '=', 'materia_empleado.empleado')
+      ->where('materia_grupo.materia', $materia)
+      ->where('materia_grupo.id', $id)->first();
+
     for($i = 0; $i < $count; $i++) {
       $ids = $res[$i]->id;
       $primerLapso = Notas::select('notas.valor')
         ->join('notas_estudiante', 'notas.id', '=', 'notas_estudiante.notas')
+        ->join('materia_notas', 'notas.id', '=', 'materia_notas.notas')
         ->where([
           ['notas.lapso', '=', 1],
           ['notas_estudiante.estudiante', '=', $res[$i]->id],
+          ['materia_notas.materia', '=', $res[$i]->materia],
           ['notas.status', '=', 1]
         ])->value('notas.valor');
 
@@ -250,9 +268,11 @@ class NotasController extends Controller
 
       $segundoLapso = Notas::select('notas.valor')
         ->join('notas_estudiante', 'notas.id', '=', 'notas_estudiante.notas')
+        ->join('materia_notas', 'notas.id', '=', 'materia_notas.notas')
         ->where([
           ['notas.lapso', '=', 2],
           ['notas_estudiante.estudiante', '=', ($ids + 0)],
+          ['materia_notas.materia', '=', $res[$i]->materia],
           ['notas.status', '=', 1]
         ])->value('notas.valor');
 
@@ -260,25 +280,31 @@ class NotasController extends Controller
 
       $tercerLapso = Notas::select('notas.valor')
         ->join('notas_estudiante', 'notas.id', '=', 'notas_estudiante.notas')
+        ->join('materia_notas', 'notas.id', '=', 'materia_notas.notas')
         ->where([
           ['notas.lapso', '=', 3],
           ['notas_estudiante.estudiante', '=', $res[$i]->id],
+          ['materia_notas.materia', '=', $res[$i]->materia],
           ['notas.status', '=', 1]
         ])->value('notas.valor');
 
       $res[$i]->tercerLapso = $tercerLapso;
     }
 
-    return response()->json($res);
+    return response()->json([
+      "grupo" => $res2,
+      "estudiantes" => $res
+    ]);
   }
 
   /**
    * Display the specified resource.
    *
    * @param  int  $id
+   * @param  int  $materia
    * @return \Illuminate\Http\Response
    */
-  public function estudiante($id)
+  public function estudiante($id, $materia)
   {
     //
     $res = Estudiante::select('persona.nombre', 'persona.apellido')
@@ -286,39 +312,45 @@ class NotasController extends Controller
       ->where('estudiante.id', $id)
       ->first();
 
-    $count = DB::table('notas_estudiante')->where('notas_estudiante.estudiante', $id)->count();
+    $count = DB::table('notas_estudiante')
+        ->join('materia_notas', 'notas_estudiante.notas', '=', 'materia_notas.notas')
+      ->where('materia_notas.materia', $materia)
+      ->where('notas_estudiante.estudiante', $id)->count();
 
     if ($count !== 0) {
 
-      $primerLapso = DB::table('notas')->select('notas.id', 'notas.valor', 'notas.lapso')
+      $primerLapso = DB::table('notas')->select('notas.id', 'notas.valor', 'notas.lapso', 'notas_estudiante.estudiante as estudiante_id', 'materia_notas.materia as materia')
         ->join('notas_estudiante', 'notas.id', '=', 'notas_estudiante.notas')
+        ->join('materia_notas', 'notas.id', '=', 'materia_notas.notas')
         ->where('notas_estudiante.estudiante', $id)
+        ->where('materia_notas.materia', $materia)
         ->where('notas.lapso', 1)
         ->first();
-      $primerLapso->estudiante_id = $id;
 
-      $segundoLapso = DB::table('notas')->select('notas.id', 'notas.valor', 'notas.lapso')
+      $segundoLapso = DB::table('notas')->select('notas.id', 'notas.valor', 'notas.lapso', 'notas_estudiante.estudiante as estudiante_id', 'materia_notas.materia as materia')
         ->join('notas_estudiante', 'notas.id', '=', 'notas_estudiante.notas')
+        ->join('materia_notas', 'notas.id', '=', 'materia_notas.notas')
         ->where('notas_estudiante.estudiante', $id)
+        ->where('materia_notas.materia', $materia)
         ->where('notas.lapso', 2)
         ->first();
-      $segundoLapso->estudiante_id = $id;
 
-      $tercerLapso = DB::table('notas')->select('notas.id', 'notas.valor', 'notas.lapso')
+      $tercerLapso = DB::table('notas')->select('notas.id', 'notas.valor', 'notas.lapso', 'notas_estudiante.estudiante as estudiante_id', 'materia_notas.materia as materia')
         ->join('notas_estudiante', 'notas.id', '=', 'notas_estudiante.notas')
+        ->join('materia_notas', 'notas.id', '=', 'materia_notas.notas')
         ->where('notas_estudiante.estudiante', $id)
+        ->where('materia_notas.materia', $materia)
         ->where('notas.lapso', 3)
         ->first();
-      $tercerLapso->estudiante_id = $id;
 
       $res->notas = [
         $primerLapso, $segundoLapso, $tercerLapso
       ];
     } else {
       $res->notas = [
-        ["id" => 0, "estudiante_id" => $id, "valor" => 0, "lapso " => 1],
-        ["id" => 0, "estudiante_id" => $id, "valor" => 0, "lapso " => 2],
-        ["id" => 0, "estudiante_id" => $id, "valor" => 0, "lapso " => 3]
+        ["id" => 0, "estudiante_id" => $id, "valor" => 0, "lapso" => 1, "materia" => $materia + 0],
+        ["id" => 0, "estudiante_id" => $id, "valor" => 0, "lapso" => 2, "materia" => $materia + 0],
+        ["id" => 0, "estudiante_id" => $id, "valor" => 0, "lapso" => 3, "materia" => $materia + 0]
       ];
     }
 
@@ -389,15 +421,6 @@ class NotasController extends Controller
      $notas->valor = $nota['valor'];
      $notas->lapso = $nota['lapso'];
      $notas->save();
-
-      //DB::table('notas_estudiante')
-        //->where([
-          //["notas", '=', $nota['id']],
-          //["estudiane", '=', $nota['estudiante_id']]
-        //])
-        //->update(
-          //["notas" => $nota['id'], "estudiante" => $nota['estudiante_id']]
-        //);
     }
 
     $res = [
