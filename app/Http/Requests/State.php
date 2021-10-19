@@ -24,7 +24,7 @@ class State extends FormRequest
   public function rules()
   {
     return [
-      'estado' => 'required|unique:state,states|string|min:5'
+      'estado' => 'required|unique:state,states|string|min:3'
     ];
   }
 
@@ -39,7 +39,7 @@ class State extends FormRequest
       'estado.required' => 'Es requerido el estado',
       'estado.unique' => 'Es nombre del estado debe ser unico',
       'estado.string' => 'El nombre del estado debe tener letras y numeros',
-      'estado.min' => 'El nombre del estado de ser minimo de 5 letras'
+      'estado.min' => 'El nombre del estado de ser minimo de 3 letras'
     ];
   }
 }

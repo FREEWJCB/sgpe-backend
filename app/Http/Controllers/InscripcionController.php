@@ -78,7 +78,7 @@ class InscripcionController extends Controller
   public function representante($cedula)
   {
     //
-    $res = Representante::select('representante.*', 'ocupacion_laboral.id as ocupacion_laboral', 'state.states', 'persona.direccion', 'municipality.municipalitys as municipality', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+    $res = Representante::select('representante.*', 'ocupacion_laboral.labor as ocupacion_laboral', 'state.states', 'persona.direccion', 'municipality.municipalitys as municipality', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
       ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
       ->join('persona', 'representante.persona', '=', 'persona.id')
       ->join('municipality', 'persona.municipality', '=', 'municipality.id')

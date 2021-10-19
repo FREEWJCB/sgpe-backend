@@ -14,8 +14,12 @@ class CargoSeeder extends Seeder
      */
     public function run()
     {
-      DB::table("cargo")->insert(
-        ["cargos" => "Profesor"]
-      );
+      DB::table("cargo")->insert([
+        ["cargos" => "Director"],
+        ["cargos" => "Sub Director"],
+        ["cargos" => "Secretaria"],
+        ["cargos" => "Profesor"],
+        ["cargos" => "Maestro"],
+      ]);
     }
 }

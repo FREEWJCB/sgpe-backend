@@ -74,6 +74,7 @@ class Ocupacion_LaboralController extends Controller
   {
     $ol = Ocupacion_laboral::find($id);
     $ol->labor = $request->labor;
+    $ol->save();
 
     return response()->json($ol, 200);
   }
