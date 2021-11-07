@@ -24,20 +24,42 @@ class UsuarioController extends Controller
   /**
    * Display a listing of the resource.
    *
+   * @param string page
+   * @param string limit
    * @return \Illuminate\Http\Response
    */
-  public function index()
+  public function index($page, $limit)
   {
+    //
+    $skip = ($page != 1) ? ($page - 1) * $limit : 0;
 
     $cons = User::select('users.id', 'persona.nombre')
       ->join('empleado', 'users.empleado', '=', 'empleado.id')
       ->join('persona', 'empleado.persona', '=', 'persona.id')
-      ->where('users.status', '1')
+      ->where('users.status', '1');
+    $count = $cons->count();
+    // paginación
+    $cons = $cons
+      ->skip($skip)
+      ->limit($limit)
       ->orderBy('users.id', 'desc');
     $cons2 = $cons->get();
     //$num = $cons->count();
+    //
+    $res = [
+      'data' => $cons2,
+      'meta' => [
+        'all' => $count,
+        'next' => ($limit != count($cons2)) ? $page : $page + 1,
+        'prev' => ($page != 1) ? $page - 1 : $page,
+        'first' => 1,
+        'last' => ceil($count / $limit),
+        'allData' => count($cons2),
+        'skip' => $skip
+      ],
+    ];
 
-    return response()->json($cons2, 200);
+    return response()->json($res, 200);
   }
 
   /**

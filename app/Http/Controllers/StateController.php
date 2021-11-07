@@ -21,15 +21,38 @@ class StateController extends Controller
   /**
    * Display a listing of the resource.
    *
-   * @param string busqueda
+   * @param string page
+   * @param string limit
    * @return \Illuminate\Http\Response
    */
-  public function index()
+  public function index($page, $limit)
   {
     //
-    $res = State::where('status', '1')
+    $skip = ($page != 1) ? ($page - 1) * $limit : 0;
+    //
+    $cons = State::where('status', '1');
+    $count = $cons->count();
+    // paginación
+    $cons = $cons
+      ->skip($skip)
+      ->limit($limit)
       ->orderBy('id', 'desc');
-    $res = $res->get();
+    $cons2 = $cons->get();
+    //$num = $cons->count();
+    //
+    $res = [
+      'data' => $cons2,
+      'meta' => [
+        'all' => $count,
+        'next' => ($limit != count($cons2)) ? $page : $page + 1,
+        'prev' => ($page != 1) ? $page - 1 : $page,
+        'first' => 1,
+        'last' => ceil($count / $limit),
+        'allData' => count($cons2),
+        'skip' => $skip
+      ],
+    ];
+
     //$num = $cons->count();
     return response()->json($res, 200);
   }

@@ -123,17 +123,21 @@ class ComboboxController extends Controller
   }
   
   //
-  public function empleado()
+  public function empleado($users)
   {
     $res = Empleado::select('empleado.id', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'cargo.cargos as cargo')
       ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
       ->join('persona', 'empleado.persona', '=', 'persona.id')
-      ->whereNotExists(function ($query) {
-          $query->select(DB::raw(1))
-            ->from('users')
-            ->whereRaw('users.empleado = empleado.id');
-        })
       ->where('empleado.status', 1);
+
+      if(!$users) {
+        $res = $res->whereNotExists(function ($query) {
+                  $query->select(DB::raw(1))
+                  ->from('users')
+                  ->whereRaw('users.empleado = empleado.id');
+                });
+      }
+
     $count = $res->count();
 
     if($count >= 1){

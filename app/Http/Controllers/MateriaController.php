@@ -21,13 +21,37 @@ class MateriaController extends Controller
   /**
    * Display a listing of the resource.
    *
+   * @param string page
+   * @param string limit
    * @return \Illuminate\Http\Response
    */
-  public function index()
+  public function index($page, $limit)
   {
     //
-    $res = Materia::where('status', '1')->orderBy('nombre', 'asc');
-    $res = $res->get();
+    $skip = ($page != 1) ? ($page - 1) * $limit : 0;
+    //
+    $cons = Materia::where('status', '1');
+    $count = $cons->count();
+    // paginación
+    $cons = $cons
+      ->skip($skip)
+      ->limit($limit)
+      ->orderBy('materia.id', 'desc');
+    $cons2 = $cons->get();
+    //$num = $cons->count();
+    //
+    $res = [
+      'data' => $cons2,
+      'meta' => [
+        'all' => $count,
+        'next' => ($limit != count($cons2)) ? $page : $page + 1,
+        'prev' => ($page != 1) ? $page - 1 : $page,
+        'first' => 1,
+        'last' => ceil($count / $limit),
+        'allData' => count($cons2),
+        'skip' => $skip
+      ],
+    ];
 
     return response()->json($res, 200);
   }

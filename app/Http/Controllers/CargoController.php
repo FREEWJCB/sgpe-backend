@@ -23,15 +23,39 @@ class CargoController extends Controller
   /**
    * Display a listing of the resource.
    *
+   * @param string page
+   * @param string limit
    * @return \Illuminate\Http\Response
    */
-  public function index()
+  public function index($page, $limit)
   {
     //
-    $cons = Cargo::where('status', '1')->orderBy('cargos', 'desc');
+    $skip = ($page != 1) ? ($page - 1) * $limit : 0;
+    //
+    $cons = Cargo::where('status', '1');
+    $count = $cons->count();
+    // paginación
+    $cons = $cons
+      ->skip($skip)
+      ->limit($limit)
+      ->orderBy('cargo.id', 'desc');
     $cons2 = $cons->get();
     //$num = $cons->count();
-    return response()->json($cons2,200);
+    //
+    $res = [
+      'data' => $cons2,
+      'meta' => [
+        'all' => $count,
+        'next' => ($limit != count($cons2)) ? $page : $page + 1,
+        'prev' => ($page != 1) ? $page - 1 : $page,
+        'first' => 1,
+        'last' => ceil($count / $limit),
+        'allData' => count($cons2),
+        'skip' => $skip
+      ],
+    ];
+
+    return response()->json($res, 200);
   }
 
   /**

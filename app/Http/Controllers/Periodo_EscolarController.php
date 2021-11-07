@@ -10,17 +10,40 @@ class Periodo_EscolarController extends Controller
   /**
    * Display a listing of the resource.
    *
+   * @param string page
+   * @param string limit
    * @return \Illuminate\Http\Response
    */
-  public function index()
+  public function index($page, $limit)
   {
     //
-    $cons = Periodo_escolar::select('id', 'anio_ini', 'anio_fin')->where('status', '1')->orderBy('anio_ini', 'DESC');
+    $skip = ($page != 1) ? ($page - 1) * $limit : 0;
+    //
+    $cons = Periodo_escolar::select('id', 'anio_ini', 'anio_fin')->where('status', '1');
+
+    $count = $cons->count();
+    // paginación
+    $cons = $cons
+      ->skip($skip)
+      ->limit($limit)
+      ->orderBy('anio_ini', 'desc');
     $cons2 = $cons->get();
     //$num = $cons->count();
+    //
+    $res = [
+      'data' => $cons2,
+      'meta' => [
+        'all' => $count,
+        'next' => ($limit != count($cons2)) ? $page : $page + 1,
+        'prev' => ($page != 1) ? $page - 1 : $page,
+        'first' => 1,
+        'last' => ceil($count / $limit),
+        'allData' => count($cons2),
+        'skip' => $skip
+      ],
+    ];
 
-
-    return  response()->json($cons2, 200);
+    return response()->json($res, 200);
   }
 
   /**

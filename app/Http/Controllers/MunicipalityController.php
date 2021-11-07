@@ -21,23 +21,43 @@ class MunicipalityController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param string page
+     * @param string limit
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($page, $limit)
     {
         //
         $cons = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
                     ->join('state', 'municipality.state', '=', 'state.id')
-                    ->where('municipality.status', '1')
-                    ->orderBy('municipalitys','asc');
-        $cons2 = $cons->get();
-        $num = $cons->count();
+                    ->where('municipality.status', '1');
+    $count = $cons->count();
+    // paginación
+    $cons = $cons
+      ->skip($skip)
+      ->limit($limit)
+      ->orderBy('municipality.id', 'desc');
+    $cons2 = $cons->get();
+    //$num = $cons->count();
+    //
+    $res = [
+      'data' => $cons2,
+      'meta' => [
+        'all' => $count,
+        'next' => ($limit != count($cons2)) ? $page : $page + 1,
+        'prev' => ($page != 1) ? $page - 1 : $page,
+        'first' => 1,
+        'last' => ceil($count / $limit),
+        'allData' => count($cons2),
+        'skip' => $skip
+      ],
+    ];
 
-        $state = State::where('status', '1')->orderBy('states','asc');
-        $state2 = $state->get();
-        $num_state = $state->count();
+        //$state = State::whermunicipalitystatus', '1')->orderBy('states','asc');
+        //$state2 = $state->get();
+        //$num_state = $state->count();
 
-    return response()->json($cons2, 200);
+    return response()->json($res, 200);
     }
 
   /**
@@ -51,10 +71,9 @@ class MunicipalityController extends Controller
     //
         $res = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
                     ->join('state', 'municipality.state', '=', 'state.id')
-                    ->where([
-                      ['municipality.status', '=', '1'],
-                      ['municipality.municipalitys', 'like', '%'.$busqueda.'%']
-                    ])
+      ->where('municipality.status', '=', '1')
+      ->where('municipality.municipalitys', 'like', '%' . $busqueda . '%')
+      ->orWhere('state.states', 'like', '%' . $busqueda . '%')
                     ->orderBy('municipalitys','desc');
     $res = $res->get();
     //$num = $cons->count();

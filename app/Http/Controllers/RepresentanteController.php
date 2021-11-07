@@ -27,22 +27,45 @@ class RepresentanteController extends Controller
   /**
    * Display a listing of the resource.
    *
+   * @param string page
+   * @param string limit
    * @return \Illuminate\Http\Response
    */
-  public function index()
+  public function index($page, $limit)
   {
+    //
+    $skip = ($page != 1) ? ($page - 1) * $limit : 0;
     //
     $cons = Representante::select('representante.*', 'ocupacion_laboral.id as ocupacion_laboral', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
       ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
       ->join('persona', 'representante.persona', '=', 'persona.id')
       ->join('municipality', 'persona.municipality', '=', 'municipality.id')
       ->join('state', 'municipality.state', '=', 'state.id')
-      ->where('representante.status', '1')->orderBy('cedula', 'asc');
-    $cons2 = $cons->get();
-    $code = 200;
-    //$num = $cons->count();
+      ->where('representante.status', '1');
 
-    return response()->json($cons2, $code);
+    $count = $cons->count();
+    // paginación
+    $cons = $cons
+      ->skip($skip)
+      ->limit($limit)
+      ->orderBy('representante.id', 'desc');
+    $cons2 = $cons->get();
+    //$num = $cons->count();
+    //
+    $res = [
+      'data' => $cons2,
+      'meta' => [
+        'all' => $count,
+        'next' => ($limit != count($cons2)) ? $page : $page + 1,
+        'prev' => ($page != 1) ? $page - 1 : $page,
+        'first' => 1,
+        'last' => ceil($count / $limit),
+        'allData' => count($cons2),
+        'skip' => $skip
+      ],
+    ];
+
+    return response()->json($res, 200);
   }
 
   /**
@@ -59,11 +82,11 @@ class RepresentanteController extends Controller
       ->join('persona', 'representante.persona', '=', 'persona.id')
       ->join('municipality', 'persona.municipality', '=', 'municipality.id')
       ->join('state', 'municipality.state', '=', 'state.id')
-      ->where([
-      ['representante.status', '=', '1'],
-      ['persona.cedula', 'like', '%' . $busqueda . '%']
-    ]
-    )->orderBy('representante.id', 'desc');
+      ->where('representante.status', '=', '1')
+      ->where('persona.cedula', 'like', '%' . $busqueda . '%')
+      ->orWhere('persona.nombre', 'like', '%' . $busqueda . '%')
+      ->orWhere('persona.apellido', 'like', '%' . $busqueda . '%')
+      ->orderBy('representante.id', 'desc');
     $res = $res->get();
     //$num = $cons->count();
     return response()->json($res, 200);

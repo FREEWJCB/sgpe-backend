@@ -21,15 +21,40 @@ class SeccionController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param string page
+     * @param string limit
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($page, $limit)
     {
-        //
-        $cons = Seccion::select('seccion.*', 'grado.grados')->join('grado', 'grado.id', '=', 'seccion.grado')->where('seccion.status', '1')->orderBy('seccion.secciones','asc');
-        $cons2 = $cons->get();
-        //$num = $cons->count();
-        return response()->json($cons2, 200);
+      //
+      $cons = Seccion::select('seccion.*', 'grado.grados')
+        ->join('grado', 'grado.id', '=', 'seccion.grado')
+        ->where('seccion.status', '1');
+
+      $count = $cons->count();
+      // paginación
+      $cons = $cons
+        ->skip($skip)
+        ->limit($limit)
+        ->orderBy('seccion.id', 'desc');
+      $cons2 = $cons->get();
+      //$num = $cons->count();
+      //
+      $res = [
+        'data' => $cons2,
+        'meta' => [
+          'all' => $count,
+          'next' => ($limit != count($cons2)) ? $page : $page + 1,
+          'prev' => ($page != 1) ? $page - 1 : $page,
+          'first' => 1,
+          'last' => ceil($count / $limit),
+          'allData' => count($cons2),
+          'skip' => $skip
+        ],
+    ];
+
+    return response()->json($res, 200);
     }
 
   /**
@@ -41,11 +66,10 @@ class SeccionController extends Controller
   public function search($busqueda)
   {
     //
-    $res = Seccion::join('grado', 'grado.id', '=', 'seccion.grado')->where([
-      ['seccion.status', '=', '1'],
-      ['seccion.secciones', 'like', '%' . $busqueda . '%']
-    ]
-    )->orderBy('seccion.id', 'desc');
+    $res = Seccion::join('grado', 'grado.id', '=', 'seccion.grado')
+          ->where('seccion.status', '=', '1')
+          ->where('seccion.secciones', 'like', '%' . $busqueda . '%')
+    ->orderBy('seccion.id', 'desc');
     $res = $res->get();
     //$num = $cons->count();
     return response()->json($res, 200);
