@@ -69,7 +69,8 @@ class CargoController extends Controller
     //
     $res = Cargo::where([
       ['status', '=', '1'],
-      ['cargos', 'like', '%' . $busqueda . '%']
+      ['cargos', 'like', '%' . strtoupper($busqueda) . '%'],
+      ['cargos', 'like', '%' . strtolower($busqueda) . '%'],
     ]
     )->orderBy('id', 'desc');
     $res = $res->get();

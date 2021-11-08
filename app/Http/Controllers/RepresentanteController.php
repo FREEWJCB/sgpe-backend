@@ -37,11 +37,11 @@ class RepresentanteController extends Controller
     $skip = ($page != 1) ? ($page - 1) * $limit : 0;
     //
     $cons = Representante::select('representante.*', 'ocupacion_laboral.id as ocupacion_laboral', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
-      ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
-      ->join('persona', 'representante.persona', '=', 'persona.id')
-      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-      ->join('state', 'municipality.state', '=', 'state.id')
-      ->where('representante.status', '1');
+ ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
+ ->join('persona', 'representante.persona', '=', 'persona.id')
+ ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+ ->join('state', 'municipality.state', '=', 'state.id')
+ ->where('representante.status', '1');
 
     $count = $cons->count();
     // paginación
@@ -78,15 +78,17 @@ class RepresentanteController extends Controller
   {
     //
     $res = Representante::select('representante.*', 'ocupacion_laboral.labor', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
-      ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
-      ->join('persona', 'representante.persona', '=', 'persona.id')
-      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-      ->join('state', 'municipality.state', '=', 'state.id')
-      ->where('representante.status', '=', '1')
-      ->where('persona.cedula', 'like', '%' . $busqueda . '%')
-      ->orWhere('persona.nombre', 'like', '%' . $busqueda . '%')
-      ->orWhere('persona.apellido', 'like', '%' . $busqueda . '%')
-      ->orderBy('representante.id', 'desc');
+ ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
+ ->join('persona', 'representante.persona', '=', 'persona.id')
+ ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+ ->join('state', 'municipality.state', '=', 'state.id')
+ ->where('representante.status', '=', '1')
+ ->where('persona.cedula', 'like', '%' . $busqueda . '%')
+ ->orWhere('persona.nombre', 'like', '%' . strtoupper($busqueda) . '%')
+ ->orWhere('persona.nombre', 'like', '%' . strtolower($busqueda) . '%')
+ ->orWhere('persona.apellido', 'like', '%' . strtoupper($busqueda) . '%')
+ ->orWhere('persona.apellido', 'like', '%' . strtolower($busqueda) . '%')
+ ->orderBy('representante.id', 'desc');
     $res = $res->get();
     //$num = $cons->count();
     return response()->json($res, 200);
@@ -101,12 +103,12 @@ class RepresentanteController extends Controller
   public function show($id)
   {
     $representante = Representante::select('representante.*', 'ocupacion_laboral.id as ocupacion_laboral', 'state.id as states', 'municipality.id as municipality', 'persona.direccion', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
-      ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
-      ->join('persona', 'representante.persona', '=', 'persona.id')
-      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
-      ->join('state', 'municipality.state', '=', 'state.id')
-      ->where('representante.id', $id)
-      ->get();
+ ->join('ocupacion_laboral', 'representante.ocupacion_laboral', '=', 'ocupacion_laboral.id')
+ ->join('persona', 'representante.persona', '=', 'persona.id')
+ ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+ ->join('state', 'municipality.state', '=', 'state.id')
+ ->where('representante.id', $id)
+ ->get();
     if (Representante::find($id)) {
       return response()->json($representante, 200);
     } else {

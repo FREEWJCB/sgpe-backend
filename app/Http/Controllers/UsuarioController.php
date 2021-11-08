@@ -74,11 +74,13 @@ class UsuarioController extends Controller
     $res = User::select('users.id', 'persona.nombre')
       ->join('empleado', 'users.empleado', '=', 'empleado.id')
       ->join('persona', 'empleado.persona', '=', 'persona.id')
-      ->where([
-      ['users.status', '=', '1'],
-      ['persona.nombre', 'like', '%' . $busqueda . '%']
-    ]
-    )->orderBy('users.id', 'desc');
+      ->where('users.status', '=', '1')
+      ->where('persona.cedula', 'like', '%' . $busqueda . '%')
+      ->orWhere('persona.nombre', 'like', '%' . strtoupper($busqueda) . '%')
+      ->orWhere('persona.nombre', 'like', '%' . strtolower($busqueda) . '%')
+      ->orWhere('persona.apellido', 'like', '%' . strtoupper($busqueda) . '%')
+      ->orWhere('persona.apellido', 'like', '%' . strtolower($busqueda) . '%')
+      ->orderBy('users.id', 'desc');
     $res = $res->get();
     //$num = $cons->count();
     return response()->json($res, 200);

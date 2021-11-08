@@ -44,7 +44,8 @@ class GradoController extends Controller
     //
     $res = Grado::where([
       ['status', '=', '1'],
-      ['grados', 'like', '%' . $busqueda . '%']
+      ['grados', 'like', '%' . strtoupper($busqueda) . '%'],
+      ['grados', 'like', '%' . strtolower($busqueda) . '%'],
     ]
     )->orderBy('id', 'desc');
     $res = $res->get();

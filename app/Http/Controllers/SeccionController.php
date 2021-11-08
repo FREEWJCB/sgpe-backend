@@ -68,7 +68,8 @@ class SeccionController extends Controller
     //
     $res = Seccion::join('grado', 'grado.id', '=', 'seccion.grado')
           ->where('seccion.status', '=', '1')
-          ->where('seccion.secciones', 'like', '%' . $busqueda . '%')
+          ->where('seccion.secciones', 'like', '%' . strtoupper($busqueda) . '%')
+          ->where('seccion.secciones', 'like', '%' . strtolower($busqueda) . '%')
     ->orderBy('seccion.id', 'desc');
     $res = $res->get();
     //$num = $cons->count();

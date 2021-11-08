@@ -72,8 +72,10 @@ class MunicipalityController extends Controller
         $res = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
                     ->join('state', 'municipality.state', '=', 'state.id')
       ->where('municipality.status', '=', '1')
-      ->where('municipality.municipalitys', 'like', '%' . $busqueda . '%')
-      ->orWhere('state.states', 'like', '%' . $busqueda . '%')
+      ->where('municipality.municipalitys', 'like', '%' . strtoupper($busqueda) . '%')
+      ->where('municipality.municipalitys', 'like', '%' . strtolower($busqueda) . '%')
+      ->orWhere('state.states', 'like', '%' . strtoupper($busqueda) . '%')
+      ->orWhere('state.states', 'like', '%' . strtolower($busqueda) . '%')
                     ->orderBy('municipalitys','desc');
     $res = $res->get();
     //$num = $cons->count();

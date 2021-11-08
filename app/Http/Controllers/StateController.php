@@ -68,7 +68,8 @@ class StateController extends Controller
     //
     $res = State::where([
       ['status', '=', '1'],
-      ['states', 'like', '%' . $busqueda . '%']
+      ['states', 'like', '%' . strtoupper($busqueda) . '%'],
+      ['states', 'like', '%' . strtolower($busqueda) . '%']
     ]
     )->orderBy('id', 'desc');
     $res = $res->get();

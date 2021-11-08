@@ -57,7 +57,8 @@ class Periodo_EscolarController extends Controller
     //
     $res = Periodo_escolar::select('id', 'anio_ini', 'anio_fin')->where([
       ['status', '1'],
-      ['anio_ini', 'like', '%'.$busqueda.'%']
+      ['anio_ini', 'like', '%'.strtoupper($busqueda).'%'],
+      ['anio_ini', 'like', '%'.strtolower($busqueda).'%'],
     ])->orderBy('anio_ini', 'DESC');
     $res = $res->get();
     //$num = $cons->count();

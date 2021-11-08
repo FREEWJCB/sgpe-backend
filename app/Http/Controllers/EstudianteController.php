@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Estudiante as Validation;
 use App\Models\Estudiante;
 use App\Models\Persona;
+use function strtoupper;
+use function strtolower;
 
 class EstudianteController extends Controller
 {
@@ -76,8 +78,10 @@ class EstudianteController extends Controller
       ->join('state', 'municipality.state', '=', 'state.id')
       ->where('estudiante.status', '=', '1')
       ->where('persona.cedula', 'like', '%' . $busqueda . '%')
-      ->orWhere('persona.nombre', 'like', '%' . $busqueda . '%')
-      ->orWhere('persona.apellido', 'like', '%' . $busqueda . '%')
+      ->orWhere('persona.nombre', 'like', '%' . strtoupper($busqueda) . '%')
+      ->orWhere('persona.nombre', 'like', '%' . strtolower($busqueda) . '%')
+      ->orWhere('persona.apellido', 'like', '%' . strtoupper($busqueda) . '%')
+      ->orWhere('persona.apellido', 'like', '%' . strtolower($busqueda) . '%')
       ->orderBy('estudiante.id', 'desc');
     $res = $res->get();
     //$num = $cons->count();

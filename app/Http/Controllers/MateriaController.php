@@ -67,7 +67,8 @@ class MateriaController extends Controller
     //
     $res = Materia::where([
       ['status', '=', '1'],
-      ['nombre', 'like', '%'.$busqueda.'%']
+      ['nombre', 'like', '%'.strtoupper($busqueda).'%'],
+      ['nombre', 'like', '%'.strtolower($busqueda).'%'],
     ])
       ->orderBy('nombre', 'asc');
     $res = $res->get();

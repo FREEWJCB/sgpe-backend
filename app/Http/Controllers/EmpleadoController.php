@@ -80,8 +80,10 @@ class EmpleadoController extends Controller
       ->join('state', 'municipality.state', '=', 'state.id')
       ->where('empleado.status', '=', '1')
       ->where('persona.cedula', 'like', '%' . $busqueda . '%')
-      ->orWhere('persona.nombre', 'like', '%' . $busqueda . '%')
-      ->orWhere('persona.apellido', 'like', '%' . $busqueda . '%')
+      ->orWhere('persona.nombre', 'like', '%' . strtoupper($busqueda) . '%')
+      ->orWhere('persona.nombre', 'like', '%' . strtolower($busqueda) . '%')
+      ->orWhere('persona.apellido', 'like', '%' . strtoupper($busqueda) . '%')
+      ->orWhere('persona.apellido', 'like', '%' . strtolower($busqueda) . '%')
       ->orderBy('municipalitys','desc');
     $res = $res->get();
     //$num = $cons->count();
