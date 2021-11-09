@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -198,6 +199,12 @@ Route::prefix('notas')->group(function () {
   Route::put('/{id}', [NotasController::class, 'update'])->name('notas.update');
   Route::put('/uptadenotas/{id}', [NotasController::class, 'updateNotasEstudiante'])->name('notas.update');
   Route::delete('/{id}', [NotasController::class, 'destroy'])->name('notas.delete');
+});
+
+Route::prefix('dashboard')->group(function () {
+  Route::post('/asistencia/anio/anio={anio}', [DashboardController::class, 'anio'])->name('dashboard.asistencia_anio');
+  Route::post('/asistencia/mes/anio={anio}', [DashboardController::class, 'mes'])->name('dashboard.asistencia_mes');
+  Route::post('/asistencia/dia/anio={anio}', [DashboardController::class, 'dia'])->name('dashboard.asistencia_dia');
 });
 
 Route::get('{route}', function ($route, Request $request) {
