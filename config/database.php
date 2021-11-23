@@ -76,6 +76,9 @@ return [
             'prefix_indexes' => true,
             'schema' => 'public',
             'sslmode' => 'prefer',
+            'dump' => [
+		        'add_extra_option' => '--data-only --exclude-table=migrations', // and any other pg_dump flags
+		    ]
         ],
 
         'sqlsrv' => [

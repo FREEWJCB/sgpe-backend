@@ -20,6 +20,7 @@ use App\Http\Controllers\Periodo_EscolarController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\NotasController;
+use App\Http\Controllers\BackupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -202,9 +203,15 @@ Route::prefix('notas')->group(function () {
 });
 
 Route::prefix('dashboard')->group(function () {
-  Route::post('/asistencia/anio/anio={anio}', [DashboardController::class, 'anio'])->name('dashboard.asistencia_anio');
-  Route::post('/asistencia/mes/anio={anio}', [DashboardController::class, 'mes'])->name('dashboard.asistencia_mes');
-  Route::post('/asistencia/dia/anio={anio}', [DashboardController::class, 'dia'])->name('dashboard.asistencia_dia');
+  Route::post('/asistencia/anio/anio={anio}&id={id}', [DashboardController::class, 'anio'])->name('dashboard.asistencia_anio');
+  Route::get('/asistencia/mes/ini={ini}&end={end}&mes={mes}&anio={anio}&id={id}', [DashboardController::class, 'mes'])->name('dashboard.asistencia_mes');
+  Route::get('/asistencia/semana/ini={ini}&end={end}&mes={mes}&anio={anio}&id={id}', [DashboardController::class, 'semana'])->name('dashboard.asistencia_dia');
+});
+
+Route::prefix('backup')->group(function () {
+  Route::get('/', [BackupController::class, 'index'])->name('backup.index');
+  Route::get('/create', [BackupController::class, 'create'])->name('backup.create');
+  Route::get('/restore/{file}', [BackupController::class, 'restore'])->name('backup.restore');
 });
 
 Route::get('{route}', function ($route, Request $request) {
