@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asistencia;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -237,12 +238,44 @@ class DashboardController extends Controller
   /**
      * Display the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
   */
-  public function show($id)
+  public function data()
   {
     //
+    $res = [];
+    $anio = now()->format('Y');
+    $ini = sprintf('01-01-%s', $anio);
+    $end = sprintf('31-12-%s', $anio);
+
+    $usuarios = User::where('status', '=', 1)
+      ->count();
+
+    $inscripciones = DB::table('grupo_estudiante')->selectRaw('count(*)')
+      ->whereRaw(sprintf("created_at >= '%s' AND created_at <= '%s'", $ini, $end))
+      ->where('status', '=', 1)
+      ->value('count');
+
+    $asistencia = DB::table('asistencia')
+      ->whereRaw(sprintf("fecha >= '%s' AND fecha <= '%s'", $ini, $end))
+      ->where('status', '=', 1)
+      ->where('asistio', '=', 1)
+      ->count();
+
+    $inasistencia = DB::table('asistencia')
+      ->whereRaw(sprintf("fecha >= '%s' AND fecha <= '%s'", $ini, $end))
+      ->where('status', '=', 1)
+      ->where('asistio', '=', 0)
+      ->count();
+
+    $res = [
+      "usuarios" => $usuarios,
+      "inscripciones" => $inscripciones,
+      "asistencia" => $asistencia,
+      "inasistencia" => $inasistencia
+    ];
+
+    return response()->json($res);
   }
 
   /**
@@ -251,7 +284,7 @@ class DashboardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
   */
-  public function edit($id)
+  public function edit()
   {
     //
   }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Empleado;
 use App\Models\Tipo_usuario;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -87,7 +88,18 @@ class AuthController extends Controller
    */
   protected function responseWithToken($token)
   {
+    $idEmpleado = auth()->user();
+    $empleado = Empleado::select('empleado.*', 'cargo.cargos', 'state.states', 'municipality.municipalitys', 'persona.cedula', 'persona.nombre', 'persona.apellido', 'persona.sex', 'persona.telefono')
+      ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
+      ->join('persona', 'empleado.persona', '=', 'persona.id')
+      ->join('municipality', 'persona.municipality', '=', 'municipality.id')
+      ->join('state', 'municipality.state', '=', 'state.id')
+      ->where('empleado.id', $idEmpleado->empleado)
+      ->first();
+    $tipo = DB::table('tipo_usuario')->where('id', '=', auth()->user()->tipo)->value('tipo');
     return response()->json([
+      'username' => $empleado->nombre,
+      'tipo' => $tipo,
       'access_token' => $token,
       'token_type' => 'bearer',
       'expires_in' => auth()->factory()->getTTL() * 60

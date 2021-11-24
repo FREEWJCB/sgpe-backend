@@ -67,7 +67,7 @@ class BackupController extends Controller
     ));
     Log::info("\Restore -- new restore started from admin interface \r\n");
 
-        //Storage::deleteDirectory('Laravel-sgpe/db-dumps');
+        Storage::deleteDirectory('Laravel-sgpe/db-dumps');
         Log::info("\Delete -- Delete folder and file with backup \r\n");
         $msg = "Restauración completa";
     
@@ -104,47 +104,28 @@ class BackupController extends Controller
     }  
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $file
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function download($file)
     {
         //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
+        return response()->download(storage_path(sprintf('app/Laravel-sgpe/%s', $file)));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int  $file
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($file)
     {
         //
+        Storage::delete(sprintf('Laravel-sgpe/%s',$file));
+
+        return response()->json([ 'message' => 'archivo eliminado' ]);
     }
 }

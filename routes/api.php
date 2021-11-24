@@ -206,12 +206,15 @@ Route::prefix('dashboard')->group(function () {
   Route::post('/asistencia/anio/anio={anio}&id={id}', [DashboardController::class, 'anio'])->name('dashboard.asistencia_anio');
   Route::get('/asistencia/mes/ini={ini}&end={end}&mes={mes}&anio={anio}&id={id}', [DashboardController::class, 'mes'])->name('dashboard.asistencia_mes');
   Route::get('/asistencia/semana/ini={ini}&end={end}&mes={mes}&anio={anio}&id={id}', [DashboardController::class, 'semana'])->name('dashboard.asistencia_dia');
+  Route::get('/data', [DashboardController::class, 'data'])->name('dashboard.data');
 });
 
 Route::prefix('backup')->group(function () {
   Route::get('/', [BackupController::class, 'index'])->name('backup.index');
   Route::get('/create', [BackupController::class, 'create'])->name('backup.create');
   Route::get('/restore/{file}', [BackupController::class, 'restore'])->name('backup.restore');
+  Route::get('/download/{file}', [BackupController::class, 'download'])->name('backup.download');
+  Route::delete('/destroy/{file}', [BackupController::class, 'destroy'])->name('backup.destroy');
 });
 
 Route::get('{route}', function ($route, Request $request) {
