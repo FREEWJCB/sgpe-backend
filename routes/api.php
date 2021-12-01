@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -21,6 +20,8 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\NotasController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -215,6 +216,11 @@ Route::prefix('backup')->group(function () {
   Route::get('/restore/{file}', [BackupController::class, 'restore'])->name('backup.restore');
   Route::get('/download/{file}', [BackupController::class, 'download'])->name('backup.download');
   Route::delete('/destroy/{file}', [BackupController::class, 'destroy'])->name('backup.destroy');
+});
+
+Route::prefix('reporte')->group(function () {
+  Route::get('/estado', [ReportesController::class, 'estado'])->name('reporte.estado');
+  Route::get('/municipio', [ReportesController::class, 'municipio'])->name('reporte.municipio');
 });
 
 Route::get('{route}', function ($route, Request $request) {
