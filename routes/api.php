@@ -225,6 +225,16 @@ Route::prefix('backup')->group(function () {
 Route::prefix('reporte')->group(function () {
     Route::get('/estado', [ReportesController::class, 'estado'])->name('reporte.estado');
     Route::get('/municipio', [ReportesController::class, 'municipio'])->name('reporte.municipio');
+    Route::get('/grado', [ReportesController::class, 'grado'])->name('reporte.grado');
+    Route::get('/seccion', [ReportesController::class, 'seccion'])->name('reporte.seccion');
+    Route::get('/periodoescolar', [ReportesController::class, 'periodoescolar'])->name('reporte.periodoescolar');
+    Route::get('/materia', [ReportesController::class, 'materia'])->name('reporte.materia');
+    Route::get('/estudiante', [ReportesController::class, 'estudiante'])->name('reporte.estudiante');
+    Route::get('/personal', [ReportesController::class, 'personal'])->name('reporte.personal');
+    Route::get('/ocupacionlaboral', [ReportesController::class, 'ocupacionlaboral'])->name('reporte.ocupacionlaboral');
+    Route::get('/representante', [ReportesController::class, 'representante'])->name('reporte.representante');
+    Route::get('/cargo', [ReportesController::class, 'cargo'])->name('reporte.cargo');
+    Route::get('/usuario', [ReportesController::class, 'usuario'])->name('reporte.usuario');
 });
 
 Route::get('{route}', function ($route, Request $request) {

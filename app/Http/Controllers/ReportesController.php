@@ -2,10 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OcupacionLaboral;
+use App\Models\Cargo;
+use App\Models\Empleado;
+use App\Models\Estudiante;
 use Barryvdh\DomPDF\Facade as PDF;
-use Illuminate\Http\Request;
 use App\Models\State;
+use App\Models\Grado;
+use App\Models\Materia;
+use App\Models\Seccion;
+use App\Models\Periodo_escolar;
 use App\Models\Municipality;
+use App\Models\Representante;
+use App\Models\User;
+use Carbon\Carbon;
 
 class ReportesController extends Controller
 {
@@ -47,7 +57,15 @@ class ReportesController extends Controller
     public function municipio()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
+        $data = Municipality::select(
+            'municipality.id',
+            'municipality.municipalitys',
+            'municipality.state as state_id',
+            'municipality.status',
+            'municipality.created_at',
+            'municipality.updated_at',
+            'state.states'
+        )
             ->join('state', 'municipality.state', '=', 'state.id')
             ->where('municipality.status', '1')
             ->get();
@@ -70,17 +88,14 @@ class ReportesController extends Controller
     public function grado()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
-            ->get();
+        $data = Grado::where('status', '1')->orderBy('grados', 'asc')->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteGrado',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Grados',
+            ['#', 'Nombre', 'Creado', 'Modificado'],
+            ['id', 'grados', 'created_at', 'updated_at'],
             $data
         );
     }
@@ -93,17 +108,17 @@ class ReportesController extends Controller
     public function seccion()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = Seccion::select('seccion.*', 'grado.grados')
+            ->join('grado', 'grado.id', '=', 'seccion.grado')
+            ->where('seccion.status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteSeccion',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Secciones',
+            ['#', 'Grado', 'Sección', 'Creado', 'Modificado'],
+            ['id', 'grados', 'secciones', 'created_at', 'updated_at'],
             $data
         );
     }
@@ -116,17 +131,15 @@ class ReportesController extends Controller
     public function periodoescolar()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = Periodo_escolar::select('id', 'anio_ini', 'anio_fin')->where('status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReportePeriodoEscolar',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los PeriodoEscolares',
+            ['#', 'Año incial', 'Año final', 'Creado', 'Modificado'],
+            ['id', 'anio_ini', 'anio_fin', 'created_at', 'updated_at'],
             $data
         );
     }
@@ -139,17 +152,15 @@ class ReportesController extends Controller
     public function materia()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = Materia::where('status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteMateria',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Materias',
+            ['#', 'Nombre', 'Creado', 'Modificado'],
+            ['id', 'nombre', 'created_at', 'updated_at'],
             $data
         );
     }
@@ -159,20 +170,34 @@ class ReportesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function rstudiante()
+    public function estudiante()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = Estudiante::select(
+            'estudiante.*',
+            'persona.cedula',
+            'persona.nombre',
+            'persona.apellido',
+            'persona.sex'
+        )
+            ->join('persona', 'estudiante.persona', '=', 'persona.id')
+            ->where('estudiante.status', '1')
             ->get();
 
+        foreach ($data as $key => $estudiante) {
+            $fecha = new Carbon($estudiante->fecha_nacimiento);
+
+            //$data[$key]['fecha_nacimiento'] = $fecha->isoFormat('MMMM Do YYYY');
+            //$data[$key]['fecha_nacimiento'] = $fecha->isoFormat('D[/]MM[/]Y');
+            $data[$key]['fecha_nacimiento'] = $fecha->format('d/m/Y');
+        }
+
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteEstudiante',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Estudiantes',
+            ['#', 'Cedula', 'Nombres', 'Apellidos', 'Fecha de Nacimiento', 'Sexo', 'Creado'],
+            ['id', 'cedula', 'nombre', 'apellido', 'fecha_nacimiento', 'sex', 'created_at'],
             $data
         );
     }
@@ -185,17 +210,25 @@ class ReportesController extends Controller
     public function personal()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = Empleado::select(
+            'empleado.*',
+            'cargo.cargos',
+            'persona.cedula',
+            'persona.nombre',
+            'persona.apellido',
+            'persona.sex'
+        )
+            ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
+            ->join('persona', 'empleado.persona', '=', 'persona.id')
+            ->where('empleado.status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteEmpleado',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Empleados',
+            ['#', 'Cedula', 'Nombres', 'Apellidos', 'Cargo', 'Sexo', 'Creado'],
+            ['id', 'cedula', 'nombre', 'apellido', 'cargos', 'sex', 'created_at'],
             $data
         );
     }
@@ -208,17 +241,15 @@ class ReportesController extends Controller
     public function ocupacionlaboral()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = OcupacionLaboral::where('status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteOcupacion Laboral',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de la Ocupacion Laboral',
+            ['#', 'Ocupación Laboral', 'Creado', 'Modificado'],
+            ['id', 'labor', 'created_at', 'updated_at'],
             $data
         );
     }
@@ -231,17 +262,26 @@ class ReportesController extends Controller
     public function representante()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data  = Representante::select(
+            'representante.*',
+            'ocupacion_laboral.labor',
+            'persona.cedula',
+            'persona.nombre',
+            'persona.apellido',
+            'persona.sex',
+            'persona.telefono'
+        )
+            ->join('ocupacion_laboral', 'representante.ocupacion_laboral', ' = ', 'ocupacion_laboral.id')
+            ->join('persona', 'representante.persona', '= ', 'persona.id')
+            ->where('representante.status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteRepresentante',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Representantes',
+            ['#', 'Cedula', 'Nombres', 'Apellidos', 'Labor', 'Sexo', 'Creado'],
+            ['id', 'cedula', 'nombre', 'apellido', 'labor', 'sex', 'updated_at'],
             $data
         );
     }
@@ -254,17 +294,15 @@ class ReportesController extends Controller
     public function cargo()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = Cargo::where('status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteCargo',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Cargos',
+            ['#', 'Cargo', 'Crado', 'Modificado'],
+            ['id', 'cargos', 'created_at', 'updated_at'],
             $data
         );
     }
@@ -277,17 +315,19 @@ class ReportesController extends Controller
     public function usuario()
     {
         //
-        $data = Municipality::select('municipality.id', 'municipality.municipalitys', 'municipality.state as state_id', 'municipality.status', 'municipality.created_at', 'municipality.updated_at', 'state.states')
-            ->join('state', 'municipality.state', '=', 'state.id')
-            ->where('municipality.status', '1')
+        $data = User::select('users.*', 'persona.*', 'empleado.*', 'cargo.cargos')
+            ->join('empleado', 'users.empleado', '=', 'empleado.id')
+            ->join('cargo', 'empleado.cargo', '=', 'cargo.id')
+            ->join('persona', 'empleado.persona', '=', 'persona.id')
+            ->where('users.status', '1')
             ->get();
 
         return $this->createPDF(
-            'ReporteMunicipio',
+            'ReporteUsuario',
             'reports.maestros',
-            'Reporte de los Municipios',
-            ['#', 'Estados', 'Municipio', 'Creado', 'Modificado'],
-            ['id', 'states', 'municipalitys', 'created_at', 'updated_at'],
+            'Reporte de los Usuarios',
+            ['#', 'Correo', 'Nombres', 'Apellidos', 'Cargo', 'Sexo', 'Creado'],
+            ['id', 'email', 'nombre', 'apellido', 'cargos', 'sex', 'created_at'],
             $data
         );
     }
@@ -308,9 +348,13 @@ class ReportesController extends Controller
         //return PDF::loadView('reports.alergia', compact('data'))->setPaper('a4', 'letter')->stream('reportealergia.pdf');
         $date = now()->format('Y-m-d_H-i-s');
         return PDF::loadView($vista, compact('data', 'headers', 'titulo', 'field'))
-            ->setPaper('a4', 'landscape') // letter, landscape
+            //->setPaper('a4', 'landscape') // letter, landscape
             ->download($tituloReporte . '-' . $date);
+        //$pdf = PDF::loadView($vista, compact('data', 'headers', 'titulo', 'field'))
+        //->setPaper('a4', 'landscape') // letter, landscape
+        //->download($tituloReporte . '-' . $date)
         //->stream('reportealergia.pdf');
         //->setPaper('dda4', 'landscape') // para tipo de hoja
+        //return response()->streamDownload(fn () => print($pdf), $tituloReporte);
     }
 }
