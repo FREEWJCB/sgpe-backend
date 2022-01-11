@@ -123,7 +123,7 @@ class EstudianteController extends Controller
   {
     $persona = Persona::create([
         'cedula' => $request->cedula,
-        'nombre' => $request->nombre, 
+        'nombre' => $request->nombre,
         'apellido' => $request->apellido,
         'sex' => $request->sex,
         'telefono' => $request->telefono,

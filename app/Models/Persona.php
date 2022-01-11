@@ -13,5 +13,13 @@ class Persona extends Model
 
     protected $guarded = ['id'];
 
-    // protected $fillable = ['cedula', 'nombre', 'apellido', 'sex', 'telefono', 'direccion', 'municipality'];
+    protected $fillable = ['cedula', 'nombre', 'apellido', 'sex', 'telefono', 'direccion', 'municipality'];
+
+    /**
+     * Get the owning persona model.
+     */
+    public function persona()
+    {
+        return $this->morphTo();
+    }
 }
