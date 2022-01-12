@@ -236,13 +236,10 @@ class ReportesParametrizadosController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param number periodoescolar
      * @param number empleado
-     * @param date ini
-     * @param date fin
      * @return \Illuminate\Http\Response
      */
-    public function asistencia(Request $request, $periodoescolar, $empleado, $ini, $fin)
+    public function asistencia(Request $request, $empleado)
     {
         //        $idEmpleado = $id;
         $label = [
@@ -253,6 +250,8 @@ class ReportesParametrizadosController extends Controller
 
         $dataAsistencia = [];
         $dataInasistencia = [];
+
+        $id = $empleado;
 
         if ($id != 0) {
             for ($i = 0; $i <= 11; $i++) {
@@ -300,8 +299,8 @@ class ReportesParametrizadosController extends Controller
             }
         }
         //
-        return response()->json(
-            $this->dataAsistencia($label, "# de Asistencia", $dataAsistencia, "# de Inasistencia", $dataInasistencia)
-        );
+        return PDF::loadView('reports.asistencia', compact('label', 'dataAsistencia', 'dataInasistencia'))
+            ->setPaper('a4', 'landscape')
+            ->download('asistencia-' . now()->format('d-m-Y') . '.pdf');
     }
 }
