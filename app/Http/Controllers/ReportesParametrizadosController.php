@@ -44,7 +44,6 @@ class ReportesParametrizadosController extends Controller
             $consdiciones[] = ['seccion.id', '=', $seccion];
         }
 
-
         $res = Inscripcion::select('grupo.id', 'grupo.created_at', 'estudiante.id as estudiante_id', 'grado.grados as grado', 'seccion.secciones as seccion', 'periodo_escolar.id as periodoEscolar')
             ->join('seccion', 'grupo.seccion', '=', 'seccion.id')
             ->join('grado', 'seccion.grado', '=', 'grado.id')
@@ -120,22 +119,45 @@ class ReportesParametrizadosController extends Controller
         $inscripciones = $res;
 
         return PDF::loadView('reports.inscripcion', compact('inscripciones'))
-            //->setPaper('a4', 'landscape') // letter, landscape
             ->download('inscripcion-' . now()->format('d-m-Y') . '.pdf');
+        //->setPaper('a4', 'landscape') // letter, landscape
     }
 
     /**
      * Show the form for creating a new resource.
      *
      * @param number periodoescolar
-     * @param number cedula
      * @param number grado
      * @param number seccion
      * @param number materia
      * @return \Illuminate\Http\Response
      */
-    public function notas($periodoescolar, $cedula, $grado, $seccion, $materia)
+    public function notas($periodoescolar, $grado, $seccion, $materia)
     {
+        $consdiciones = [];
+        $consdicionesSegunda = [];
+
+        if ($periodoescolar != 0) {
+            $consdicionesSegunda[] = ['periodo_escolar.id', '=', $periodoescolar];
+        }
+
+        if ($grado != 0) {
+            $consdicionesSegunda[] = ['grado.id', '=', $grado];
+        }
+
+        if ($seccion != 0) {
+            $consdiciones[] = ['grupo.seccion', '=', $materia];
+            $consdicionesSegunda[] = ['seccion.id', '=', $seccion];
+        }
+
+        if ($materia != 0) {
+            $consdiciones[] = ['materia.id', '=', $materia];
+            $consdicionesSegunda[] = ['materia.id', '=', $materia];
+        } else {
+            $consdiciones[] = ['materia.id', '!=', $materia];
+            $consdicionesSegunda[] = ['materia.id', '!=', $materia];
+        }
+
         $res = DB::table('grupo')
             ->select('persona.nombre', 'persona.apellido', 'estudiante.id', 'materia.id as materia')
             ->join('materia_grupo', 'materia_grupo.grupo', '=', 'grupo.id')
@@ -144,15 +166,16 @@ class ReportesParametrizadosController extends Controller
             ->join('grupo_estudiante', 'grupo_estudiante.grupo_id', '=', 'grupo.id')
             ->join('estudiante', 'grupo_estudiante.estudiante_id', '=', 'estudiante.id')
             ->join('persona', 'estudiante.persona', '=', 'persona.id')
-            ->where('materia_grupo.id', $id)
-            ->where('materia_grupo.materia', $materia);
+            ->where($consdiciones);
 
         $count = $res->count();
 
         $res = $res->get();
 
         $res2 = DB::table('grupo')
-            ->selectRaw("seccion.secciones as seccion, grado.grados as grado, concat(periodo_escolar.anio_ini, '-', periodo_escolar.anio_fin) as periodo_escolar, materia.nombre as materia, (select concat(persona.nombre, ' ', persona.apellido) from persona where persona.id = empleado.id) as empleado")
+            ->selectRaw(
+                "seccion.secciones as seccion, grado.grados as grado, concat(periodo_escolar.anio_ini, '-', periodo_escolar.anio_fin) as periodo_escolar, materia.nombre as materia, (select concat(persona.nombre, ' ', persona.apellido) from persona where persona.id = empleado.id) as empleado"
+            )
             ->join('materia_grupo', 'materia_grupo.grupo', '=', 'grupo.id')
             ->join('materia', 'materia_grupo.materia', '=', 'materia.id')
             ->join('seccion', 'grupo.seccion', '=', 'seccion.id')
@@ -160,8 +183,7 @@ class ReportesParametrizadosController extends Controller
             ->join('grado', 'seccion.grado', '=', 'grado.id')
             ->join('materia_empleado', 'materia_empleado.materia', '=', 'materia.id')
             ->join('empleado', 'empleado.id', '=', 'materia_empleado.empleado')
-            ->where('materia_grupo.materia', $materia)
-            ->where('materia_grupo.id', $id)->first();
+            ->where($consdicionesSegunda)->get();
 
         for ($i = 0; $i < $count; $i++) {
             $ids = $res[$i]->id;
@@ -202,10 +224,12 @@ class ReportesParametrizadosController extends Controller
             $res[$i]->tercerLapso = $tercerLapso;
         }
 
-        return response()->json([
-            "grupo" => $res2,
-            "estudiantes" => $res
-        ]);
+        $grupos = $res2;
+
+        $estudiantes = $res;
+
+        return PDF::loadView('reports.notas', compact('grupos', 'estudiantes'))
+            ->download('notas-' . now()->format('d-m-Y') . '.pdf');
     }
 
     /**
