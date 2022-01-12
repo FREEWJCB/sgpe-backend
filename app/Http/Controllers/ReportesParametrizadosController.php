@@ -235,11 +235,10 @@ class ReportesParametrizadosController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param number empleado
      * @return \Illuminate\Http\Response
      */
-    public function asistencia(Request $request, $empleado)
+    public function asistencia($anio, $empleado)
     {
         //        $idEmpleado = $id;
         $label = [
@@ -247,6 +246,21 @@ class ReportesParametrizadosController extends Controller
             'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
         ];
         $data = array();
+
+        $getAnio = [
+            ['ini' => '01-01-' + $anio, 'fin' => '31-01-' + $anio],
+            ['ini' => '01-02-' + $anio, 'fin' => '28-02-' + $anio],
+            ['ini' => '01-03-' + $anio, 'fin' => '31-03-' + $anio],
+            ['ini' => '01-04-' + $anio, 'fin' => '30-04-' + $anio],
+            ['ini' => '01-05-' + $anio, 'fin' => '31-05-' + $anio],
+            ['ini' => '01-06-' + $anio, 'fin' => '30-06-' + $anio],
+            ['ini' => '01-07-' + $anio, 'fin' => '31-07-' + $anio],
+            ['ini' => '01-08-' + $anio, 'fin' => '31-08-' + $anio],
+            ['ini' => '01-09-' + $anio, 'fin' => '30-09-' + $anio],
+            ['ini' => '01-10-' + $anio, 'fin' => '31-10-' + $anio],
+            ['ini' => '01-11-' + $anio, 'fin' => '30-11-' + $anio],
+            ['ini' => '01-12-' + $anio, 'fin' => '31-12-' + $anio]
+        ];
 
         $dataAsistencia = [];
         $dataInasistencia = [];
@@ -261,7 +275,7 @@ class ReportesParametrizadosController extends Controller
                         ['asistencia.status', '=', 1],
                         ['asistencia.asistio', '=', true]
                     ])
-                    ->whereRaw("asistencia.fecha >= '" . $request->anio[$i]['ini'] . "' AND asistencia.fecha <= '" . $request->anio[$i]['fin'] . "'");
+                    ->whereRaw("asistencia.fecha >= '" . $getAnio[$i]['ini'] . "' AND asistencia.fecha <= '" . $getAnio[$i]['fin'] . "'");
                 $asistio = $asistio->where('asistencia_empleado.empleado', '=', $id);
                 $asistio = $asistio->first();
                 //
@@ -271,7 +285,7 @@ class ReportesParametrizadosController extends Controller
                         ['asistencia.status', '=', 1],
                         ['asistencia.asistio', '=', false]
                     ])
-                    ->whereRaw("asistencia.fecha >= '" . $request->anio[$i]['ini'] . "' AND asistencia.fecha <= '" . $request->anio[$i]['fin'] . "'");
+                    ->whereRaw("asistencia.fecha >= '" . $getAnio[$i]['ini'] . "' AND asistencia.fecha <= '" . $getAnio[$i]['fin'] . "'");
                 $noAsistio = $noAsistio->where('asistencia_empleado.empleado', '=', $id);
                 $noAsistio = $noAsistio->first();
                 array_push($dataAsistencia, $asistio->count);
@@ -284,7 +298,7 @@ class ReportesParametrizadosController extends Controller
                         ['status', '=', 1],
                         ['asistio', '=', true]
                     ])
-                    ->whereRaw("fecha >= '" . $request->anio[$i]['ini'] . "' AND fecha <= '" . $request->anio[$i]['fin'] . "'")
+                    ->whereRaw("fecha >= '" . $getAnio[$i]['ini'] . "' AND fecha <= '" . $getAnio[$i]['fin'] . "'")
                     ->first();
                 //
                 $noAsistio = Asistencia::select(DB::raw('count(*)'))
@@ -292,7 +306,7 @@ class ReportesParametrizadosController extends Controller
                         ['status', '=', 1],
                         ['asistio', '=', false]
                     ])
-                    ->whereRaw("fecha >= '" . $request->anio[$i]['ini'] . "' AND fecha <= '" . $request->anio[$i]['fin'] . "'")
+                    ->whereRaw("fecha >= '" . $getAnio[$i]['ini'] . "' AND fecha <= '" . $getAnio[$i]['fin'] . "'")
                     ->first();
                 array_push($dataAsistencia, $asistio->count);
                 array_push($dataInasistencia, $noAsistio->count);
