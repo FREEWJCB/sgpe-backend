@@ -23,6 +23,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RecuperaContrasenaController;
 use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\ReportesParametrizadosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -235,6 +236,19 @@ Route::prefix('reporte')->group(function () {
     Route::get('/representante', [ReportesController::class, 'representante'])->name('reporte.representante');
     Route::get('/cargo', [ReportesController::class, 'cargo'])->name('reporte.cargo');
     Route::get('/usuario', [ReportesController::class, 'usuario'])->name('reporte.usuario');
+
+    Route::get(
+        '/inscripcion/periodo={periodoescolar}&cedula={cedula}&grado={grado}&seccion={seccion}',
+        [ReportesParametrizadosController::class, 'inscripcion']
+    )->name('reporte.inscripcion');
+    Route::get(
+        '/notas/periodo={periodoescolar}&cedula={cedula}&grado={grado}&seccion={seccion}&materia={materia}',
+        [ReportesParametrizadosController::class, 'notas']
+    )->name('reporte.notas');
+    Route::get(
+        '/asistencia/periodo={periodoescolar}&empleado={cedula}&ini={ini}&fin={fin}',
+        [ReportesParametrizadosController::class, 'asistencia']
+    )->name('reporte.asistencia');
 });
 
 Route::get('{route}', function ($route, Request $request) {
