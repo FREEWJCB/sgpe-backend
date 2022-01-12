@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OcupacionLaboral;
+use App\Models\Ocupacion_laboral as OcupacionLaboral;
 use App\Models\Cargo;
 use App\Models\Empleado;
 use App\Models\Estudiante;
@@ -241,8 +241,7 @@ class ReportesController extends Controller
     public function ocupacionlaboral()
     {
         //
-        $data = OcupacionLaboral::where('status', '1')
-            ->get();
+        $data = OcupacionLaboral::where('status', 1)->get();
 
         return $this->createPDF(
             'ReporteOcupacion Laboral',

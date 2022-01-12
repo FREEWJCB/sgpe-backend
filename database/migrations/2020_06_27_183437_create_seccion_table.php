@@ -15,9 +15,9 @@ class CreateSeccionTable extends Migration
     {
         Schema::create('seccion', function (Blueprint $table) {
             $table->id();
-            $table->string('secciones',100)->unique();
+            $table->string('secciones', 100);
             $table->unsignedBigInteger('grado');
-            $table->decimal('status',1,0)->default(1);
+            $table->decimal('status', 1, 0)->default(1);
             $table->timestamps();
             $table->foreign('grado')->references('id')->on('grado');
         });
@@ -33,3 +33,4 @@ class CreateSeccionTable extends Migration
         Schema::dropIfExists('seccion');
     }
 }
+
