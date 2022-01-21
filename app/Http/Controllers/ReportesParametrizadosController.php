@@ -248,18 +248,18 @@ class ReportesParametrizadosController extends Controller
         $data = array();
 
         $getAnio = [
-            ['ini' => '01-01-' + $anio, 'fin' => '31-01-' + $anio],
-            ['ini' => '01-02-' + $anio, 'fin' => '28-02-' + $anio],
-            ['ini' => '01-03-' + $anio, 'fin' => '31-03-' + $anio],
-            ['ini' => '01-04-' + $anio, 'fin' => '30-04-' + $anio],
-            ['ini' => '01-05-' + $anio, 'fin' => '31-05-' + $anio],
-            ['ini' => '01-06-' + $anio, 'fin' => '30-06-' + $anio],
-            ['ini' => '01-07-' + $anio, 'fin' => '31-07-' + $anio],
-            ['ini' => '01-08-' + $anio, 'fin' => '31-08-' + $anio],
-            ['ini' => '01-09-' + $anio, 'fin' => '30-09-' + $anio],
-            ['ini' => '01-10-' + $anio, 'fin' => '31-10-' + $anio],
-            ['ini' => '01-11-' + $anio, 'fin' => '30-11-' + $anio],
-            ['ini' => '01-12-' + $anio, 'fin' => '31-12-' + $anio]
+            ['ini' => '01-01-' . $anio, 'fin' => '31-01-' . $anio],
+            ['ini' => '01-02-' . $anio, 'fin' => '28-02-' . $anio],
+            ['ini' => '01-03-' . $anio, 'fin' => '31-03-' . $anio],
+            ['ini' => '01-04-' . $anio, 'fin' => '30-04-' . $anio],
+            ['ini' => '01-05-' . $anio, 'fin' => '31-05-' . $anio],
+            ['ini' => '01-06-' . $anio, 'fin' => '30-06-' . $anio],
+            ['ini' => '01-07-' . $anio, 'fin' => '31-07-' . $anio],
+            ['ini' => '01-08-' . $anio, 'fin' => '31-08-' . $anio],
+            ['ini' => '01-09-' . $anio, 'fin' => '30-09-' . $anio],
+            ['ini' => '01-10-' . $anio, 'fin' => '31-10-' . $anio],
+            ['ini' => '01-11-' . $anio, 'fin' => '30-11-' . $anio],
+            ['ini' => '01-12-' . $anio, 'fin' => '31-12-' . $anio]
         ];
 
         $dataAsistencia = [];

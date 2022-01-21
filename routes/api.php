@@ -245,8 +245,8 @@ Route::prefix('reporte')->group(function () {
         '/notas/periodo={periodoescolar}&grado={grado}&seccion={seccion}&materia={materia}',
         [ReportesParametrizadosController::class, 'notas']
     )->name('reporte.notas');
-    Route::post(
-        '/asistencia/empleado={empleado}',
+    Route::get(
+        '/asistencia/anio={anio}&empleado={empleado}',
         [ReportesParametrizadosController::class, 'asistencia']
     )->name('reporte.asistencia');
 });

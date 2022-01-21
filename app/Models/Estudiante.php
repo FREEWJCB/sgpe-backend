@@ -13,10 +13,10 @@ class Estudiante extends Model
 
     protected $guarded = ['id'];
 
-    protected $cast = [
+    protected $casts = [
         'fecha_nacimiento' => 'date:d/m/Y',
         'created_at' => 'date:d/m/Y',
     ];
 
-    // protected $fillable = ['fecha_nacimiento', 'lugar_nacimiento', 'descripcion', 'persona'];
+    protected $fillable = ['fecha_nacimiento', 'lugar_nacimiento', 'descripcion', 'persona'];
 }
