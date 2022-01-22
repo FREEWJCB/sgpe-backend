@@ -10,7 +10,10 @@
                 {{--<div class="text-left">{{ $inscripcion->created_at->format('d/m/Y') }}
             </div>--}}
         </div>
-        @foreach($grupos as $key => $grupo)
+        @php
+        $bucle = 0;
+        @endphp
+        @foreach($grupos as $grupo)
         <div style="margin-bottom: 20px;">
             <table class="table table-borderles">
                 <col width="120px">
@@ -56,20 +59,6 @@
                             {{ $grupo->materia }}
                         </td>
                     </tr>
-                    {{--</tbody>--}}
-                    {{--</table>--}}
-                    {{--</div>--}}
-                    {{--<div style="margin-top: 20px; margin-bottom: 20px;">--}}
-                    {{--<table class="table table-borderles">--}}
-                    {{--<col width="120px">--}}
-                    {{--<col width="120px">--}}
-                    {{--<col width="120px">--}}
-                    {{--<col width="120px">--}}
-                    {{--<col width="120px">--}}
-                    {{--<col width="120px">--}}
-                    {{--<col width="120px">--}}
-                    {{--<col width="120px">--}}
-                    {{--<tbody>--}}
                     <tr class="divide-x divide-gray-200">
                         <td colspan="3" class="px-3 py-2 fw-bold text-xs bg-gray-50">
                             Estudiante
@@ -81,41 +70,42 @@
                             Total
                         </td>
                     </tr>
-                    <tr class="divide-x divide-gray-200">
-                        @php
-                        $total = 0;
-                        @endphp
+                    @php
+                    $totalEstudiantes = ( count($estudiantes) / count($grupos) );
+                    @endphp
+                    @for ($i = 0 + $bucle; $i < ( $totalEstudiantes + $bucle ); $i++) @php $total=0; @endphp <tr class="divide-x divide-gray-200">
                         <td colspan="3" class="px-3 py-2 fw-bold text-xs bg-gray-50">
-                            {{ $estudiantes[$key]->nombre }} {{ $estudiantes[$key]->apellido }}
+                            {{ $estudiantes[$i]->nombre }} {{ $estudiantes[$i]->apellido }}
                         </td>
                         <td colspan="1" class="px-3 py-2 text-xs" style="padding: 0 70px;">
-                            {{ $estudiantes[$key]->primerLapso }}
+                            {{ $estudiantes[$i]->primerLapso ?? 0 }}
                             @php
-                            $total += $estudiantes[$key]->primerLapso;
+                            $total += $estudiantes[$i]->primerLapso;
                             @endphp
                         </td>
                         <td colspan="1" class="px-3 py-2 text-xs" style="padding: 0 70px;">
-                            {{ $estudiantes[$key]->segundoLapso }}
+                            {{ $estudiantes[$i]->segundoLapso ?? 0 }}
                             @php
-                            $total += $estudiantes[$key]->segundoLapso;
+                            $total += $estudiantes[$i]->segundoLapso;
                             @endphp
                         </td>
                         <td colspan="1" class="px-3 py-2 text-xs" style="padding: 0 70px;">
-                            {{ $estudiantes[$key]->tercerLapso }}
+                            {{ $estudiantes[$i]->tercerLapso ?? 0 }}
                             @php
-                            $total += $estudiantes[$key]->tercerLapso;
+                            $total += $estudiantes[$i]->tercerLapso;
                             @endphp
                         </td>
                         <td colspan="2" class="px-3 py-2 fw-bold text-xs bg-gray-50">
                             {{ $total }}
                         </td>
-                        @php
-                        $total = 0;
-                        @endphp
-                    </tr>
+                        </tr>
+                        @endfor
                 </tbody>
             </table>
         </div>
+        @php
+        $bucle += ( count($estudiantes) / count($grupos) );
+        @endphp
         @endforeach
     </div>
     {{--<pre>@json($grupos, JSON_PRETTY_PRINT)</pre>--}}

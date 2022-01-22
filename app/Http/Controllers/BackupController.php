@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -25,11 +26,12 @@ class BackupController extends Controller
         $path = 'Laravel-sgpe';
         $directories = Storage::files($path);
         $res = [];
-        
-        foreach(Storage::files($path) as $file){
-            $res[] = [
+
+        foreach (Storage::files($path) as $key => $file) {
+            $date = new Carbon(Storage::lastModified($file));
+            $res[$key] = [
                 "name" => File::basename($file),
-                "date" => Storage::lastModified($file)
+                "date" => $date->format('d/m/Y')
             ];
         }
 
@@ -48,31 +50,31 @@ class BackupController extends Controller
         exec('php artisan migrate:fresh');
 
         $zip = new ZipArchive;
-        $res = $zip->open(storage_path( '/app/Laravel-sgpe/' ).$file);
-    
-        Log::info("\Descompress -- Descompress file: ".$file." \r\n");
+        $res = $zip->open(storage_path('/app/Laravel-sgpe/') . $file);
 
-        $zip->extractTo(storage_path( '/app/Laravel-sgpe/' ));
+        Log::info("\Descompress -- Descompress file: " . $file . " \r\n");
+
+        $zip->extractTo(storage_path('/app/Laravel-sgpe/'));
         $zip->close();
 
         $path = storage_path('/app/Laravel-sgpe/db-dumps/postgresql-laravel-sgpe.sql');
         //Artisan::call('db:restore --path=storage/app/Laravel-sgpe/db-dumps/postgresql-laravel-sgpe.sql');
-    Artisan::call('migrate:fresh');
-    exec(sprintf(
-      'psql -U %s -h %s %s < %s',
-      env('DB_USERNAME'),
-      env('DB_HOST'),
-      env('DB_DATABASE'),
-      $path
-    ));
-    Log::info("\Restore -- new restore started from admin interface \r\n");
+        Artisan::call('migrate:fresh');
+        exec(sprintf(
+            'psql -U %s -h %s %s < %s',
+            env('DB_USERNAME'),
+            env('DB_HOST'),
+            env('DB_DATABASE'),
+            $path
+        ));
+        Log::info("\Restore -- new restore started from admin interface \r\n");
 
         Storage::deleteDirectory('Laravel-sgpe/db-dumps');
         Log::info("\Delete -- Delete folder and file with backup \r\n");
         $msg = "Restauración completa";
-    
+
         //return response()->json([ "message" => $msg ]);
-        return response()->json([ "message" => $msg, "file" => $file ]);
+        return response()->json(["message" => $msg, "file" => $file]);
     }
 
     /**
@@ -84,24 +86,24 @@ class BackupController extends Controller
     public function create()
     {
         try {
-          // start the backup process
-          \Illuminate\Support\Facades\Artisan::call('backup:run');
-          $output = \Illuminate\Support\Facades\Artisan::output();
-          // log the results
-          Log::info("Backpack\BackupManager -- new backup started from admin interface \r\n" . $output);
-          // return the results as a response to the ajax call
-          return response()->json([
-            "message" => 'Backup Created Successfully!',
-            "alertType" => 'alert-success'
-          ]);
+            // start the backup process
+            \Illuminate\Support\Facades\Artisan::call('backup:run');
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            // log the results
+            Log::info("Backpack\BackupManager -- new backup started from admin interface \r\n" . $output);
+            // return the results as a response to the ajax call
+            return response()->json([
+                "message" => 'Backup Created Successfully!',
+                "alertType" => 'alert-success'
+            ]);
         } catch (Exception $e) {
-          Log::info("Backpack\BackupManager -- error create new backup \r\n" . $e);
-          return response()->json([
-            "message" => 'Backup Failed, Try again',
-            "alertType" => 'alert-warning'
-          ]);
+            Log::info("Backpack\BackupManager -- error create new backup \r\n" . $e);
+            return response()->json([
+                "message" => 'Backup Failed, Try again',
+                "alertType" => 'alert-warning'
+            ]);
         }
-    }  
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -124,8 +126,8 @@ class BackupController extends Controller
     public function destroy($file)
     {
         //
-        Storage::delete(sprintf('Laravel-sgpe/%s',$file));
+        Storage::delete(sprintf('Laravel-sgpe/%s', $file));
 
-        return response()->json([ 'message' => 'archivo eliminado' ]);
+        return response()->json(['message' => 'archivo eliminado']);
     }
 }

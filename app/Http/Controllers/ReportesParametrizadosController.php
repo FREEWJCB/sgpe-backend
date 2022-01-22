@@ -11,7 +11,7 @@ use App\Models\Periodo_escolar;
 use App\Models\Representante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade as PDF;
+use PDF;
 
 class ReportesParametrizadosController extends Controller
 {
@@ -118,8 +118,8 @@ class ReportesParametrizadosController extends Controller
 
         $inscripciones = $res;
 
-        return PDF::loadView('reports.inscripcion', compact('inscripciones'))
-            ->download('inscripcion-' . now()->format('d-m-Y') . '.pdf');
+        $pdf = PDF::loadView('reports.inscripcion', compact('inscripciones'));
+        return $pdf->stream('inscripcion-' . now()->format('d-m-Y') . '.pdf');
         //->setPaper('a4', 'landscape') // letter, landscape
     }
 
@@ -153,9 +153,6 @@ class ReportesParametrizadosController extends Controller
         if ($materia != 0) {
             $consdiciones[] = ['materia.id', '=', $materia];
             $consdicionesSegunda[] = ['materia.id', '=', $materia];
-        } else {
-            $consdiciones[] = ['materia.id', '!=', $materia];
-            $consdicionesSegunda[] = ['materia.id', '!=', $materia];
         }
 
         $res = DB::table('grupo')
@@ -228,6 +225,7 @@ class ReportesParametrizadosController extends Controller
 
         $estudiantes = $res;
 
+        //dd($grupos, $estudiantes, count($estudiantes) / 2);
         return PDF::loadView('reports.notas', compact('grupos', 'estudiantes'))
             ->download('notas-' . now()->format('d-m-Y') . '.pdf');
     }
