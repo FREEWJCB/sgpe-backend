@@ -17,13 +17,14 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->unsignedBigInteger('password')->nullable();
             $table->rememberToken();
-            $table->string('pregunta',100)->nullable();
-            $table->string('respuesta',100)->nullable();
+            $table->string('pregunta', 100)->nullable();
+            $table->string('respuesta', 100)->nullable();
             $table->unsignedBigInteger('tipo')->nullable();
             $table->unsignedBigInteger('empleado')->unique()->nullable();
-            $table->decimal('status',1,0)->default(1);
+            $table->decimal('status', 1, 0)->default(1);
+            $table->foreign('password')->references('id')->on('password');
             $table->foreign('tipo')->references('id')->on('tipo_usuario');
             $table->foreign('empleado')->references('id')->on('empleado');
             $table->timestamps();
